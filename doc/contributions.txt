@@ -17,12 +17,6 @@ Agathos Frascati
 	CT-317
 	CT-352
 Aimee Trescothick
-	SNOW-67
-	SNOW-68
-	SNOW-69
-	SNOW-71
-	SNOW-78
-	SNOW-79
 	VWR-1813
 	VWR-3321
 	VWR-3336
@@ -42,8 +36,14 @@ Aimee Trescothick
 	VWR-8482
 	VWR-9255
 	VWR-11844
-	VWR-12748
 	VWR-12696
+	VWR-12748
+	SNOW-67
+	SNOW-68
+	SNOW-69
+	SNOW-71
+	SNOW-78
+	SNOW-79
 Alejandro Rosenthal
 	VWR-1184
 Aleric Inglewood
