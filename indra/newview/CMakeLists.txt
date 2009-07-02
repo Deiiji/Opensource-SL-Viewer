@@ -334,6 +334,7 @@ set(viewer_SOURCE_FILES
     lltextureinfo.cpp
     lltextureinfodetails.cpp
     lltexturestats.cpp
+    lltexturestatsuploader.cpp
     lltextureview.cpp
     lltoolbar.cpp
     lltoolbrush.cpp
@@ -746,6 +747,7 @@ set(viewer_HEADER_FILES
     lltextureinfo.h
     lltextureinfodetails.h
     lltexturestats.h
+    lltexturestatsuploader.h
     lltextureview.h
     lltool.h
     lltoolbar.h
@@ -1594,4 +1596,4 @@ ADD_VIEWER_BUILD_TEST(llworldmap viewer)
 ADD_VIEWER_BUILD_TEST(llworldmipmap viewer)
 ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
 ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
-
+ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)

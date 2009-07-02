@@ -343,7 +343,7 @@ BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, 
 //static
 S32 LLImageJ2C::calcHeaderSizeJ2C()
 {
-	return 600; //2048; // ??? hack... just needs to be >= actual header size...
+	return FIRST_PACKET_SIZE; // Hack. just needs to be >= actual header size...
 }
 
 //static
