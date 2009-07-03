@@ -1946,8 +1946,7 @@ void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera)
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	if (!sSkipUpdate && bridge->getSpatialGroup()->changeLOD())
 	{
-		bool force_update = false;
-		bridge->updateDistance(camera, force_update);
+		bridge->updateDistance(camera);
 	}
 }
 
@@ -2008,13 +2007,11 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 		{
 			if (!drawablep->isActive())
 			{
-				bool force_update = false;
-				drawablep->updateDistance(camera, force_update);
+				drawablep->updateDistance(camera);
 			}
 			else if (drawablep->isAvatar())
 			{
-				bool force_update = false;
-				drawablep->updateDistance(camera, force_update); // calls vobj->updateLOD() which calls LLVOAvatar::updateVisibility()
+				drawablep->updateDistance(camera); // calls vobj->updateLOD() which calls LLVOAvatar::updateVisibility()
 		}
 		}
 	}

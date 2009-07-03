@@ -47,11 +47,11 @@
 // cache/texture.entries
 //  Unordered array of Entry structs
 // cache/texture.cache
-//  First TEXTURE_CACHE_ENTRY_SIZE bytes of each texture in texture.entries in same order
+//  First FIRST_PACKET_SIZE bytes of each texture in texture.entries in same order
 // cache/textures/[0-F]/UUID.texture
 //  Actual texture body files
 
-const S32 TEXTURE_CACHE_ENTRY_SIZE = 1024;
+const S32 TEXTURE_CACHE_ENTRY_SIZE = FIRST_PACKET_SIZE; //1024;
 const F32 TEXTURE_CACHE_PURGE_AMOUNT = .20f; // % amount to reduce the cache by when it exceeds its limit
 const F32 TEXTURE_CACHE_LRU_SIZE = .10f; // % amount for LRU list (low overhead to regenerate)
 
@@ -869,7 +869,7 @@ bool LLTextureCache::updateTextureEntryList(const LLUUID& id, S32 bodysize)
 
 //static
 const S32 MAX_REASONABLE_FILE_SIZE = 512*1024*1024; // 512 MB
-F32 LLTextureCache::sHeaderCacheVersion = 1.3f;
+F32 LLTextureCache::sHeaderCacheVersion = 1.2f;
 U32 LLTextureCache::sCacheMaxEntries = MAX_REASONABLE_FILE_SIZE / TEXTURE_CACHE_ENTRY_SIZE;
 S64 LLTextureCache::sCacheMaxTexturesSize = 0; // no limit
 const char* entries_filename = "texture.entries";

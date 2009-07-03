@@ -11966,16 +11966,5 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>TextureLoggingThreshold</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifies the byte threshold at which texture download data should be sent to the sim.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-</map>
+  </map>
 </llsd>

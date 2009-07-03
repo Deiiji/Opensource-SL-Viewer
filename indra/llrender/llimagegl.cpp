@@ -52,8 +52,8 @@ LLGLuint LLImageGL::sCurrentBoundTextures[MAX_GL_TEXTURE_UNITS] = { 0 };
 
 U32 LLImageGL::sUniqueCount				= 0;
 U32 LLImageGL::sBindCount				= 0;
-S32 LLImageGL::sGlobalTextureMemoryInBytes		= 0;
-S32 LLImageGL::sBoundTextureMemoryInBytes		= 0;
+S32 LLImageGL::sGlobalTextureMemory		= 0;
+S32 LLImageGL::sBoundTextureMemory		= 0;
 S32 LLImageGL::sCurBoundTextureMemory	= 0;
 S32 LLImageGL::sCount					= 0;
 
@@ -211,7 +211,7 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
 void LLImageGL::updateStats(F32 current_time)
 {
 	sLastFrameTime = current_time;
-	sBoundTextureMemoryInBytes = sCurBoundTextureMemory;
+	sBoundTextureMemory = sCurBoundTextureMemory;
 	sCurBoundTextureMemory = 0;
 
 	if(gAuditTexture)
@@ -542,7 +542,7 @@ bool LLImageGL::bindError(const S32 stage) const
 }
 
 //virtual
-bool LLImageGL::bindDefaultImage(const S32 stage) 
+bool LLImageGL::bindDefaultImage(const S32 stage) const
 {
 	return false;
 }
@@ -1098,7 +1098,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 
 	if (old_name != 0)
 	{
-		sGlobalTextureMemoryInBytes -= mTextureMemory;
+		sGlobalTextureMemory -= mTextureMemory;
 
 		if(gAuditTexture)
 		{
@@ -1111,7 +1111,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 	}
 
 	mTextureMemory = getMipBytes(discard_level);
-	sGlobalTextureMemoryInBytes += mTextureMemory;
+	sGlobalTextureMemory += mTextureMemory;
 	setActive() ;
 
 	if(gAuditTexture)
@@ -1309,7 +1309,7 @@ void LLImageGL::destroyGLTexture()
 			{
 				decTextureCounter() ;
 			}
-			sGlobalTextureMemoryInBytes -= mTextureMemory;
+			sGlobalTextureMemory -= mTextureMemory;
 			mTextureMemory = 0;
 		}
 		

@@ -42,9 +42,6 @@
 
 #include "llrender.h"
 
-#define BYTES_TO_MEGA_BYTES(x) ((x) >> 20)
-#define MEGA_BYTES_TO_BYTES(x) ((x) << 20)
-
 //============================================================================
 class LLImageGL : public LLRefCount
 {
@@ -90,7 +87,7 @@ protected:
 public:
 	virtual void dump();	// debugging info to llinfos
 	virtual bool bindError(const S32 stage = 0) const;
-	virtual bool bindDefaultImage(const S32 stage = 0) ;
+	virtual bool bindDefaultImage(const S32 stage = 0) const;
 	virtual void forceImmediateUpdate() ;
 
 	void setSize(S32 width, S32 height, S32 ncomponents);
@@ -244,8 +241,8 @@ public:
 	static LLGLuint sCurrentBoundTextures[MAX_GL_TEXTURE_UNITS]; // Currently bound texture ID
 
 	// Global memory statistics
-	static S32 sGlobalTextureMemoryInBytes;		// Tracks main memory texmem
-	static S32 sBoundTextureMemoryInBytes;	// Tracks bound texmem for last completed frame
+	static S32 sGlobalTextureMemory;		// Tracks main memory texmem
+	static S32 sBoundTextureMemory;			// Tracks bound texmem for last completed frame
 	static S32 sCurBoundTextureMemory;		// Tracks bound texmem for current frame
 	static U32 sBindCount;					// Tracks number of texture binds for current frame
 	static U32 sUniqueCount;				// Tracks number of unique texture binds for current frame

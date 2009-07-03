@@ -52,7 +52,6 @@
 #include "llviewerimagelist.h"
 #include "llviewerimage.h"
 #include "llviewerregion.h"
-#include "llworld.h"
 
 //////////////////////////////////////////////////////////////////////////////
 class LLTextureFetchWorker : public LLWorkerClass
@@ -395,7 +394,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mBuffer(NULL),
 	  mBufferSize(0),
 	  mRequestedSize(0),
-	  mDesiredSize(TEXTURE_CACHE_ENTRY_SIZE),
+	  mDesiredSize(FIRST_PACKET_SIZE),
 	  mFileSize(0),
 	  mCachedSize(0),
 	  mLoaded(FALSE),
@@ -678,7 +677,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == CACHE_POST)
 	{
-		mDesiredSize = llmax(mDesiredSize, TEXTURE_CACHE_ENTRY_SIZE);
+		mDesiredSize = llmax(mDesiredSize, FIRST_PACKET_SIZE);
 		mCachedSize = mFormattedImage.notNull() ? mFormattedImage->getDataSize() : 0;
 		// Successfully loaded
 		if ((mCachedSize >= mDesiredSize) || mHaveAllData)
@@ -706,17 +705,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == LOAD_FROM_NETWORK)
 	{
-		bool get_url = gSavedSettings.getBOOL("ImagePipelineUseHTTP");
-		if (!mUrl.empty()) get_url = false;
-// 		if (mHost != LLHost::invalid) get_url = false;
-		if ( get_url )
+		if (mUrl.empty() && gSavedSettings.getBOOL("ImagePipelineUseHTTP"))
 		{
-			LLViewerRegion* region = NULL;
-			if (mHost == LLHost::invalid)
-				region = gAgent.getRegion();
-			else
-				region = LLWorld::getInstance()->getRegion(mHost);
-
+			LLViewerRegion* region = gAgent.getRegion();
 			if (region)
 			{
 				std::string http_url = region->getCapability("GetTexture");
@@ -724,10 +715,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				{
 					mUrl = http_url + "/?texture_id=" + mID.asString().c_str();
 				}
-			}
-			else
-			{
-				llwarns << "Region not found for host: " << mHost << llendl;
 			}
 		}
 		if (!mUrl.empty())
@@ -831,9 +818,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 				mFetcher->addToHTTPQueue(mID);
 				// Will call callbackHttpGet when curl request completes
-				std::vector<std::string> headers;
-				headers.push_back("Accept: image/x-j2c");
-				res = mFetcher->mCurlGetRequest->getByteRange(mUrl, headers, offset, mRequestedSize,
+				res = mFetcher->mCurlGetRequest->getByteRange(mUrl, offset, mRequestedSize,
 															  new HTTPGetResponder(mFetcher, mID, LLTimer::getTotalTime(), mRequestedSize, offset));
 			}
 			if (!res)
@@ -1360,7 +1345,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mCurlGetRequest(NULL)
 {
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
-	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), gSavedSettings.getU32("TextureLoggingThreshold"));
+	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"));
 }
 
 LLTextureFetch::~LLTextureFetch()
@@ -1417,7 +1402,7 @@ bool LLTextureFetch::createRequest(const std::string& url, const LLUUID& id, con
 	}
 	else
 	{
-		desired_size = TEXTURE_CACHE_ENTRY_SIZE;
+		desired_size = FIRST_PACKET_SIZE;
 		desired_discard = MAX_DISCARD_LEVEL;
 	}
 

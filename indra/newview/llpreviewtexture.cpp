@@ -155,10 +155,6 @@ LLPreviewTexture::~LLPreviewTexture()
 		getWindow()->decBusyCount();
 	}
 
-	if(mImage.notNull())
-	{
-		mImage->destroySavedRawImage() ;
-	}
 	mImage = NULL;
 }
 
@@ -594,7 +590,6 @@ void LLPreviewTexture::loadAsset()
 {
 	mImage = gImageList.getImage(mImageID, MIPMAP_TRUE, FALSE);
 	mImage->setBoostLevel(LLViewerImageBoostLevel::BOOST_PREVIEW);
-	mImage->forceToSaveRawImage(0) ;
 	mAssetStatus = PREVIEW_ASSET_LOADING;
 }
 

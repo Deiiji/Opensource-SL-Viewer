@@ -673,7 +673,7 @@ BOOL LLDrawable::updateMoveDamped()
 	return done_moving;
 }
 
-void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
+void LLDrawable::updateDistance(LLCamera& camera)
 {
 	//switch LOD with the spatial group to avoid artifacts
 	//LLSpatialGroup* sg = getSpatialGroup();
@@ -695,7 +695,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 			for (S32 i = 0; i < getNumFaces(); i++)
 			{
 				LLFace* facep = getFace(i);
-				if (force_update || facep->getPoolType() == LLDrawPool::POOL_ALPHA)
+				if (facep->getPoolType() == LLDrawPool::POOL_ALPHA)
 				{
 					LLVector3 box = (facep->mExtents[1] - facep->mExtents[0]) * 0.25f;
 					LLVector3 v = (facep->mCenterLocal-camera.getOrigin());
@@ -1269,7 +1269,7 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 	}
 }
 
-void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
+void LLSpatialBridge::updateDistance(LLCamera& camera_in)
 {
 	if (mDrawable == NULL)
 	{
@@ -1279,7 +1279,7 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 
 	LLCamera camera = transformCamera(camera_in);
 	
-	mDrawable->updateDistance(camera, force_update);
+	mDrawable->updateDistance(camera);
 	
 	if (mDrawable->getVObj())
 	{
@@ -1296,7 +1296,7 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 
 			if (!drawable->isAvatar())
 			{
-				drawable->updateDistance(camera, force_update);
+				drawable->updateDistance(camera);
 			}
 		}
 	}

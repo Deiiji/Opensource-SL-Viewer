@@ -3,7 +3,6 @@
 	<check_box name="enable_joystick">
 		Увімкнути Джойстик:
 	</check_box>
-	<text left="160" name="joystick_type" width="340"/>
 	<spinner label="Вісь X" name="JoystickAxis1"/>
 	<spinner label="Вісь Y" name="JoystickAxis2"/>
 	<spinner label="Вісь Z" name="JoystickAxis0"/>
@@ -20,7 +19,7 @@
 	<check_box name="JoystickAvatarEnabled">
 		Аватар
 	</check_box>
-	<check_box name="JoystickBuildEnabled" left="192">
+	<check_box name="JoystickBuildEnabled">
 		Будівн
 	</check_box>
 	<check_box name="JoystickFlycamEnabled">
@@ -53,13 +52,13 @@
 	<text name="ZDeadZone">
 		Мер.Зона по Z
 	</text>
-	<text name="PitchDeadZone" left="3" width="112">
+	<text name="PitchDeadZone">
 		Мер.Зона Кроку
 	</text>
-	<text name="YawDeadZone" left="3" width="112">
+	<text name="YawDeadZone">
 		Мер.Зона Відхил.
 	</text>
-	<text name="RollDeadZone" left="3" width="112">
+	<text name="RollDeadZone">
 		Мер.Зона Прокр.
 	</text>
 	<text name="Feathering">
@@ -68,17 +67,17 @@
 	<slider label="" name="AvatarFeathering"/>
 	<slider label="" name="BuildFeathering"/>
 	<slider label="" name="FlycamFeathering"/>
-	<text name="ZoomScale2" width="135" left="6">
+	<text name="ZoomScale2">
 		Шкала Масштаб.
 	</text>
 	<spinner label="" name="FlycamAxisScale6"/>
-	<text name="ZoomDeadZone" width="135" left="6">
+	<text name="ZoomDeadZone">
 		Мер.Зона Масштаб.
 	</text>
 	<spinner label="" name="FlycamAxisDeadZone6"/>
-	<button label="За замовчуванням SpaceNavigator" name="SpaceNavigatorDefaults" font="SansSerifSmall" left="330" width="210"/>
-	<button label="OK" label_selected="OK" name="ok_btn" left="330"/>
-	<button label="Відміна" label_selected="Відміна" name="cancel_btn" left_delta="120"/>
+	<button label="За замовчуванням" name="SpaceNavigatorDefaults"/>
+	<button label="OK" label_selected="OK" name="ok_btn"/>
+	<button label="Відміна" label_selected="Відміна" name="cancel_btn"/>
 	<string name="JoystickMonitor">
 		Моніторинг Джойстика
 	</string>

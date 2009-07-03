@@ -2620,6 +2620,7 @@ void LLAppViewer::requestQuit()
 		gFloaterView->closeAllChildren(true);
 	}
 
+	capture_texture_stats_snapshot(LLTimer::getTotalTime());
 	send_stats();
 
 	gLogoutTimer.reset();
@@ -3244,6 +3245,15 @@ void LLAppViewer::idle()
 			llinfos << "Transmitting sessions stats" << llendl;
 			send_stats();
 			viewer_stats_timer.reset();
+		}
+
+		static LLFrameStatsTimer texture_downloads_stats_timer(CAPTURE_TEXTURE_STATS_PERIOD);
+		if (texture_downloads_stats_timer.getElapsedTimeF32() >= CAPTURE_TEXTURE_STATS_PERIOD && !gDisconnected)
+		{
+			// TODO first time: take a blank snapshot
+			llinfos << "Taking texture download stats snapshot" << llendl;
+			capture_texture_stats_snapshot(LLTimer::getTotalTime());
+			texture_downloads_stats_timer.reset();
 		}
 
 		// Print the object debugging stats
