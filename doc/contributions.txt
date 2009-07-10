@@ -561,12 +561,15 @@ TBBle Kurosawa
 	VWR-1892
 Teardrops Fall
 	VWR-5366
+Techwolf Lupindo
+	VWR-12385
 tenebrous pau
 	VWR-247
 Tharax Ferraris
 	VWR-605
 Thickbrick Sleaford
 	VWR-7109
+	VWR-9287
 	SNOW-8
 Thraxis Epsilon
 	SVC-371
