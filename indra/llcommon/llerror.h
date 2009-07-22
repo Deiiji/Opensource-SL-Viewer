@@ -302,5 +302,8 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 		Such computation is done iff the message will be logged.
 	*/
 
+#ifdef SHOW_ASSERT
+extern bool is_main_thread();
+#endif
 
 #endif // LL_LLERROR_H
