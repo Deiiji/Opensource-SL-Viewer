@@ -146,9 +146,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>26c714a12ae6de55af8709c343a352ea</string>
+            <string>70b51d0cc93c305026e4e2778cde6d19</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.6.0-windows-20090721.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.6.0-windows-20090722.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -235,9 +235,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>314999afd705f58ab87717a85bd773b9</string>
+            <string>f6cb20db3ace7f6f25053b7a97b797f4</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.19.6-windows-20090721.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.19.6-windows-20090722.tar.bz2</uri>
           </map>
         </map>
       </map>
