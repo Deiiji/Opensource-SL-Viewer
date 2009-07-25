@@ -1560,6 +1560,7 @@ void LLVoiceClient::stateMachine()
 	}
 	
 	// Check for parcel boundary crossing
+	if(mVoiceEnabled)
 	{
 		LLViewerRegion *region = gAgent.getRegion();
 		LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
