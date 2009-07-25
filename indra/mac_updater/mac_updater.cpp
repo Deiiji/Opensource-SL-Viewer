@@ -70,6 +70,7 @@ Boolean gCancelled = false;
 
 char *gUpdateURL;
 char *gProductName;
+char *gBundleID;
 
 void *updatethreadproc(void*);
 
@@ -338,6 +339,10 @@ int parse_args(int argc, char **argv)
 		{
 			gProductName = argv[j];
 		}
+		else if ((!strcmp(argv[j], "-bundleid")) && (++j < argc)) 
+		{
+			gBundleID = argv[j];
+		}
 	}
 
 	return 0;
@@ -364,6 +369,7 @@ int main(int argc, char **argv)
 	//
 	gUpdateURL  = NULL;
 	gProductName = NULL;
+	gBundleID = NULL;
 	parse_args(argc, argv);
 	if (!gUpdateURL)
 	{
@@ -649,7 +655,7 @@ static bool isFSRefViewerBundle(FSRef *targetRef)
 	}
 	else
 	{
-		if(CFStringCompare(targetBundleID, CFSTR("com.secondlife.indra.viewer"), 0) == kCFCompareEqualTo)
+		if(CFStringCompare(targetBundleID, (gBundleID != NULL ? CFStringCreateWithCString(NULL, gBundleID, kCFStringEncodingUTF8) : CFSTR("com.secondlife.indra.viewer")), 0) == kCFCompareEqualTo)
 		{
 			// This is the bundle we're looking for.
 			result = true;

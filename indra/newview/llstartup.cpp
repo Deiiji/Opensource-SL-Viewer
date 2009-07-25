@@ -2983,6 +2983,8 @@ bool update_dialog_callback(const LLSD& notification, const LLSD& response)
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += update_url.asString();
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" -name \"";
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += LLAppViewer::instance()->getSecondLifeTitle();
+	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" -bundleid \"";
+	LLAppViewer::sUpdaterInfo->mUpdateExePath += LL_VERSION_BUNDLE_ID;
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" &";
 
 	LL_DEBUGS("AppInit") << "Calling updater: " << LLAppViewer::sUpdaterInfo->mUpdateExePath << LL_ENDL;
