@@ -387,6 +387,14 @@ int main(int argc, char **argv)
 		{
 			gProductName = "Second Life";
 		}
+		if (gBundleID)
+		{
+			llinfos << "Bundle ID is: " << gBundleID << llendl;
+		}
+		else
+		{
+			gBundleID = "com.secondlife.indra.viewer";
+		}
 	}
 	
 	llinfos << "Starting " << gProductName << " Updater" << llendl;
@@ -628,7 +636,8 @@ static bool isFSRefViewerBundle(FSRef *targetRef)
 	CFURLRef targetURL = NULL;
 	CFBundleRef targetBundle = NULL;
 	CFStringRef targetBundleID = NULL;
-	
+	CFStringRef sourceBundleID = NULL;
+
 	targetURL = CFURLCreateFromFSRef(NULL, targetRef);
 
 	if(targetURL == NULL)
@@ -655,7 +664,8 @@ static bool isFSRefViewerBundle(FSRef *targetRef)
 	}
 	else
 	{
-		if(CFStringCompare(targetBundleID, (gBundleID != NULL ? CFStringCreateWithCString(NULL, gBundleID, kCFStringEncodingUTF8) : CFSTR("com.secondlife.indra.viewer")), 0) == kCFCompareEqualTo)
+		sourceBundleID = CFStringCreateWithCString(NULL, gBundleID, kCFStringEncodingUTF8);
+		if(CFStringCompare(sourceBundleID, targetBundleID, 0) == kCFCompareEqualTo)
 		{
 			// This is the bundle we're looking for.
 			result = true;
