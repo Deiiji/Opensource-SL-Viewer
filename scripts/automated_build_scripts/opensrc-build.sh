@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # This is the build script used by Linden Lab's autmated build system.
-#
 
 set -x
 
