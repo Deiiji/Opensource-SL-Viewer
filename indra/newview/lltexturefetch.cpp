@@ -698,7 +698,11 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			// need more data
 			else
 			{
-				mState = LOAD_FROM_NETWORK;
+				mState = LOAD_FROM_NETWORK;	// CACHE_POST --> LOAD_FROM_NETWORK, or SEND_HTTP_REQ see below.
+				// This is true because mSentRequest is set to UNSENT in INIT and if we get here we went through
+				// the states INIT --> LOAD_FROM_TEXTURE_CACHE --> CACHE_POST. Therefore either
+				// mFetcher->addToNetworkQueue(this) is called below, or mState is set to SEND_HTTP_REQ.
+				llassert(mSentRequest == UNSENT);
 			}
 			// fall through
 		}
@@ -771,6 +775,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				// processSimulatorPackets() failed
 // 				llwarns << "processSimulatorPackets() failed to load buffer" << llendl;
+				// FIXME: Don't we need a mState change?
 				return true; // failed
 			}
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
@@ -778,7 +783,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		else
 		{
-			mFetcher->addToNetworkQueue(this); // failsafe
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 		}
 		return false;
@@ -801,8 +805,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				setPriority(LLWorkerThread::PRIORITY_NORMAL | mWorkPriority);
 				return false;
 			}
-			
-			mFetcher->removeFromNetworkQueue(this, false);
 			
 			S32 cur_size = 0;
 			if (mFormattedImage.notNull())
@@ -1434,7 +1436,13 @@ bool LLTextureFetch::createRequest(const std::string& url, const LLUUID& id, con
 		worker->unlockWorkMutex();
 		if (!worker->haveWork())
 		{
+		  	worker->lockWorkMutex();
+			if (worker->mState == LLTextureFetchWorker::LOAD_FROM_NETWORK || worker->mState == LLTextureFetchWorker::LOAD_FROM_SIMULATOR)
+			{
+			  	removeFromNetworkQueue(worker, true);
+			}
 			worker->mState = LLTextureFetchWorker::INIT;
+			worker->unlockWorkMutex();
 			worker->addWork(0, LLWorkerThread::PRIORITY_HIGH | worker->mWorkPriority);
 		}
 	}
@@ -1699,11 +1707,12 @@ void LLTextureFetch::sendRequestListToSimulators()
 			mNetworkQueue.erase(curiter);
 			continue; // paranoia
 		}
+		llassert(req->mState == LLTextureFetchWorker::LOAD_FROM_NETWORK || LLTextureFetchWorker::LOAD_FROM_SIMULATOR);
 		if ((req->mState != LLTextureFetchWorker::LOAD_FROM_NETWORK) &&
 			(req->mState != LLTextureFetchWorker::LOAD_FROM_SIMULATOR))
 		{
-			// We already received our URL, remove from the queue
-			llwarns << "Worker: " << req->mID << " in mNetworkQueue but in wrong state: " << req->mState << llendl;
+			// We really should never ever get here anymore.
+			llwarns << "SNOW-119 failure: Worker: " << req->mID << " in mNetworkQueue but in wrong state: " << req->mState << llendl;
 			mNetworkQueue.erase(curiter);
 			continue;
 		}
@@ -1894,16 +1903,20 @@ bool LLTextureFetch::receiveImageHeader(const LLHost& host, const LLUUID& id, U8
 {
 	LLMutexLock lock(&mQueueMutex);
 	LLTextureFetchWorker* worker = getWorker(id);
-	bool res = true;
 
 	++mPacketCount;
 	
 	if (!worker)
 	{
 // 		llwarns << "Received header for non active worker: " << id << llendl;
-		res = false;
+		++mBadPacketCount;
+		mCancelQueue[host].insert(id);
+		return false;
 	}
-	else if (worker->mState != LLTextureFetchWorker::LOAD_FROM_NETWORK ||
+
+	bool res = true;
+	worker->lockWorkMutex();
+	if (worker->mState != LLTextureFetchWorker::LOAD_FROM_NETWORK ||
 			 worker->mSentRequest != LLTextureFetchWorker::SENT_SIM)
 	{
 // 		llwarns << "receiveImageHeader for worker: " << id
@@ -1926,20 +1939,19 @@ bool LLTextureFetch::receiveImageHeader(const LLHost& host, const LLUUID& id, U8
 	{
 		++mBadPacketCount;
 		mCancelQueue[host].insert(id);
-		return false;
 	}
-
-	worker->lockWorkMutex();
-
-	//	Copy header data into image object
-	worker->mImageCodec = codec;
-	worker->mTotalPackets = packets;
-	worker->mFileSize = (S32)totalbytes;	
-	llassert_always(totalbytes > 0);
-	llassert_always(data_size == FIRST_PACKET_SIZE || data_size == worker->mFileSize);
-	res = worker->insertPacket(0, data, data_size);
-	worker->setPriority(LLWorkerThread::PRIORITY_HIGH | worker->mWorkPriority);
-	worker->mState = LLTextureFetchWorker::LOAD_FROM_SIMULATOR;
+	else
+	{
+		// Copy header data into image object
+		worker->mImageCodec = codec;
+		worker->mTotalPackets = packets;
+		worker->mFileSize = (S32)totalbytes;	
+		llassert_always(totalbytes > 0);
+		llassert_always(data_size == FIRST_PACKET_SIZE || data_size == worker->mFileSize);
+		res = worker->insertPacket(0, data, data_size);
+		worker->setPriority(LLWorkerThread::PRIORITY_HIGH | worker->mWorkPriority);
+		worker->mState = LLTextureFetchWorker::LOAD_FROM_SIMULATOR;
+	}
 	worker->unlockWorkMutex();
 	return res;
 }
@@ -1988,7 +2000,6 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 	{
 // 		llwarns << "receiveImagePacket " << packet_num << "/" << worker->mLastPacket << " for worker: " << id
 // 				<< " in state: " << LLTextureFetchWorker::sStateDescs[worker->mState] << llendl;
-		removeFromNetworkQueue(worker, true); // failsafe
 	}
 
 	if(packet_num >= (worker->mTotalPackets - 1))
