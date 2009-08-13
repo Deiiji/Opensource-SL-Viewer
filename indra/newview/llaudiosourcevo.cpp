@@ -64,11 +64,11 @@ void LLAudioSourceVO::updateMute()
 {
 	if (!mObjectp || mObjectp->isDead())
 	{
-	  	mSourceMuted = TRUE;
+	  	mSourceMuted = true;
 		return;
 	}
 
-	BOOL mute = FALSE;
+	bool mute = false;
 	LLVector3d pos_global;
 
 	if (mObjectp->isAttachment())
@@ -90,18 +90,18 @@ void LLAudioSourceVO::updateMute()
 
 	if (!LLViewerParcelMgr::getInstance()->canHearSound(pos_global))
 	{
-		mute = TRUE;
+		mute = true;
 	}
 
 	if (!mute)
 	{
 		if (LLMuteList::getInstance()->isMuted(mObjectp->getID()))
 		{
-			mute = TRUE;
+			mute = true;
 		}
 		else if (LLMuteList::getInstance()->isMuted(mOwnerID, LLMute::flagObjectSounds))
 		{
-			mute = TRUE;
+			mute = true;
 		}
 		else if (mObjectp->isAttachment())
 		{
@@ -113,7 +113,7 @@ void LLAudioSourceVO::updateMute()
 			if (parent 
 				&& LLMuteList::getInstance()->isMuted(parent->getID()))
 			{
-				mute = TRUE;
+				mute = true;
 			}
 		}
 	}
