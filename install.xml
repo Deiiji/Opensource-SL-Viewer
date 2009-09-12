@@ -617,6 +617,39 @@
           </map>
         </map>
       </map>
+      <key>jsoncpp</key>
+      <map>
+        <key>copyright</key>
+        <string>json-cpp library released to Public Domain by Baptiste Lepilleur &lt;blep@users.sourceforge.net&gt;</string>
+        <key>description</key>
+        <string>jsoncpp is an implementation of a JSON (http://json.org) reader and writer in C++.</string>
+        <key>license</key>
+        <string>jsoncpp</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>a781db53afcbf80b7d588544729ad3e9</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-darwin-20090909.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>d9af4aac4cf1b6d79e5235e1f0b11b97</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-linux-20090904.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>e5a6ff2e3f6594c311ec73c265f355ea</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-windows-20090908.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>kdu</key>
       <map>
         <key>copyright</key>
@@ -1435,6 +1468,13 @@ Cass Everitt - cass@r3.nu
       <map>
         <key>text</key>
         <string>http://nyctergatis.com/jpeglib/</string>
+      </map>
+      <key>jsoncpp</key>
+      <map>
+        <key>text</key>
+        <string>The json-cpp library and this documentation are in Public Domain.  Retrieved from http://jsoncpp.sourceforge.net/ on 2009-09-04.</string>
+        <key>url</key>
+        <string>http://jsoncpp.sourceforge.net</string>
       </map>
       <key>kdu</key>
       <map>
