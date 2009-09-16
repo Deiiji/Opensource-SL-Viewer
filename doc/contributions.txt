@@ -489,6 +489,7 @@ Ringo Tuxing
 	CT-231
 	CT-321
 Robin Cornelius
+    SNOW-108
 	VWR-2488
 	VWR-9557
 	VWR-11128
