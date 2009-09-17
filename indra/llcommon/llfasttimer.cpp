@@ -67,9 +67,9 @@ int LLFastTimer::sResetHistory = 0;
 F64 LLFastTimer::sCPUClockFrequency = 0.0;
 
 #if LL_LINUX || LL_SOLARIS
-U64 LLFastTimer::sClockResolution = 1e9; // Nanosecond resolution
+U64 LLFastTimer::sClockResolution = 1000000000; // 1e9, Nanosecond resolution
 #else 
-U64 LLFastTimer::sClockResolution = 1e6; // Microsecond resolution
+U64 LLFastTimer::sClockResolution = 1000000; // 1e6, Microsecond resolution
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
