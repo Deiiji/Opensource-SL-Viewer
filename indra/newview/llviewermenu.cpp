@@ -130,6 +130,7 @@
 #include "llfloatersettingsdebug.h"
 #include "llfloaterenvsettings.h"
 #include "llfloaterstats.h"
+#include "llfloaterteleport.h"
 #include "llfloatertest.h"
 #include "llfloatertools.h"
 #include "llfloaterwater.h"
@@ -858,6 +859,14 @@ void init_client_menu(LLMenuGL* menu)
 	init_debug_world_menu(sub_menu);
 	menu->appendMenu(sub_menu);
 
+	// only include region teleport UI if we are using agent domain
+	if (gSavedSettings.getBOOL("OpenGridProtocol"))
+	{
+		sub_menu = new LLMenuGL("Interop");
+		sub_menu->append(new LLMenuItemCallGL("Teleport Region...", 
+			&LLFloaterTeleport::show, NULL, NULL, 'R', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
+		menu->appendMenu(sub_menu);
+	}
 	sub_menu = new LLMenuGL("UI");
 	init_debug_ui_menu(sub_menu);
 	menu->appendMenu(sub_menu);
