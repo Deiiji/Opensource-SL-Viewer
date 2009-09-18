@@ -409,9 +409,11 @@ class WindowsManifest(ViewerManifest):
         self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
         # self.remove(self.dst_path_of(tempfile))
         # If we're on a build machine, sign the code using our Authenticode certificate. JC
-        sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
+        sign_py = os.path.expandvars("{SIGN_PY}")
+        if sign_py == "" or sign_py == "{SIGN_PY}":
+            sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
         if os.path.exists(sign_py):
-            self.run_command(sign_py + ' ' + self.dst_path_of(installer_file))
+            self.run_command('python ' + sign_py + ' ' + self.dst_path_of(installer_file))
         else:
             print "Skipping code signing,", sign_py, "does not exist"
         self.created_path(self.dst_path_of(installer_file))
