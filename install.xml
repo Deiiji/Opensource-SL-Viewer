@@ -644,9 +644,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>e5a6ff2e3f6594c311ec73c265f355ea</string>
+            <string>8f9f915df6d251c0ceb81d2ff4c2ddfd</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-windows-20090908.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-svn-r69-windows-20090918.tar.bz2</uri>
           </map>
         </map>
       </map>
