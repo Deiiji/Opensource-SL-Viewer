@@ -481,6 +481,8 @@ princess niven
 	CT-352
 Renault Clio
 	VWR-1976
+resu Ampan
+	SNOW-93
 Ringo Tuxing
 	CT-225
 	CT-226

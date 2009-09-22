@@ -10,6 +10,7 @@ include(ELFIO)
 include(FMOD)
 include(OPENAL)
 include(FindOpenGL)
+include(JsonCpp)
 include(LLAddBuildTest)
 include(LLAudio)
 include(LLCharacter)
@@ -44,6 +45,7 @@ endif (WINDOWS)
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
     ${ELFIO_INCLUDE_DIR}
+    ${JSONCPP_INCLUDE_DIRS}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
@@ -359,6 +361,7 @@ set(viewer_SOURCE_FILES
     lltoolview.cpp
     lltracker.cpp
     lltrans.cpp
+    lltranslate.cpp
     lluploaddialog.cpp
     llurl.cpp
     llurldispatcher.cpp
@@ -773,6 +776,7 @@ set(viewer_HEADER_FILES
     lltoolview.h
     lltracker.h
     lltrans.h
+    lltranslate.h
     lluiconstants.h
     lluploaddialog.h
     llurl.h
@@ -1466,6 +1470,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${OPENGL_LIBRARIES}
     ${FMODWRAPPER_LIBRARY}
     ${OPENGL_LIBRARIES}
+    ${JSONCPP_LIBRARIES}
     ${MOZLIB_LIBRARIES}
     ${SDL_LIBRARY}
     ${SMARTHEAP_LIBRARY}
@@ -1600,3 +1605,4 @@ ADD_VIEWER_BUILD_TEST(llworldmipmap viewer)
 ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
 ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
 ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
+#ADD_VIEWER_COMM_BUILD_TEST(lltranslate viewer "")

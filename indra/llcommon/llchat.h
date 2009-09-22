@@ -79,9 +79,24 @@ public:
 		mMuted(FALSE),
 		mTime(0.0),
 		mPosAgent(),
-		mURL()
+		mURL(),
+		mLanguage()
 	{ }
 	
+	LLChat(const LLChat &chat)
+	:	mText(chat.mText),
+		mFromName(chat.mFromName),
+		mFromID(chat.mFromID),
+		mSourceType(chat.mSourceType),
+		mChatType(chat.mChatType),
+		mAudible(chat.mAudible),
+		mMuted(chat.mMuted),
+		mTime(chat.mTime),
+		mPosAgent(chat.mPosAgent),
+		mURL(chat.mURL),
+		mLanguage(chat.mLanguage)
+	{ }
+
 	std::string		mText;		// UTF-8 line of text
 	std::string		mFromName;	// agent or object name
 	LLUUID			mFromID;	// agent id or object id
@@ -92,6 +107,7 @@ public:
 	F64				mTime;		// viewer only, seconds from viewer start
 	LLVector3		mPosAgent;
 	std::string		mURL;
+	std::string		mLanguage;
 };
 
 #endif

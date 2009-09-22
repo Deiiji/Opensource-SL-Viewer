@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel border="true" bottom="-409" enabled="true" follows="left|top|right|bottom"
-    height="408" label="Text Chat" left="102" mouse_opaque="true" name="chat"
+<panel border="true" bottom="-499" enabled="true" follows="left|top|right|bottom"
+    height="548" label="Text Chat" left="102" mouse_opaque="true" name="chat"
     width="517">
 	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 	     bottom="-20" drop_shadow_visible="true" enabled="true" follows="left|top"
@@ -154,4 +154,73 @@
 	     increment="0.05" initial_val="1" label="Opacity" left="148" max_val="1"
 	     min_val="0" mouse_opaque="true" name="bubble_chat_opacity" show_text="true"
 	     value="0.5" width="200" />
+
+	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	     bottom="-410" drop_shadow_visible="true" enabled="true" follows="left|top"
+	     font="SansSerifSmall" h_pad="0" halign="left" height="10" left="12"
+	     mouse_opaque="false" name="text_chat_language" v_pad="0" width="128">
+		Chat Language:
+	</text>
+	<combo_box allow_text_entry="true" bottom="-417" enabled="true"
+	     follows="left|top" height="16" left="148" max_chars="135"
+	     mouse_opaque="true" name="translate_language_combobox" width="146">
+		<combo_item type="string" length="1" enabled="true" name="System Default Language" value="default">
+			System Default
+		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="English" value="en">
+			English
+		</combo_item>
+		
+		<!-- After "System Default" and "English", please keep the rest of these combo_items in alphabetical order by the first character in the string. -->
+		
+		<combo_item type="string" length="1" enabled="true" name="Danish" value="da">
+			Dansk (Danish) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="Deutsch(German)" value="de">
+			Deutsch (German) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="Spanish" value="es">
+			Espaol (Spanish) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="French" value="fr">
+			Fran�ais (French) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="Italian" value="it">
+			Italiano (Italian) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="Hungarian" value="hu">
+			Magyar (Hungarian) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="Dutch" value="nl">
+			Nederlands (Dutch) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="Polish" value="pl">
+			Polski (Polish) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="Portugese" value="pt">
+			Portugu�s (Portuguese) - Beta
+		</combo_item>
+ 		<combo_item type="string" length="1" enabled="true" name="Russian" value="ru">
+ 			??????? (Russian) - Beta
+ 		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="Turkish" value="tr">
+			T�rk�e (Turkish) - Beta
+		</combo_item>
+ 		<combo_item type="string" length="1" enabled="true" name="Ukrainian" value="uk">
+ 			?????????? (Ukrainian) - Beta
+ 		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="Chinese" value="zh">
+			?? (??) (Chinese) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="(Japanese)" value="ja">
+			??? (Japanese) - Beta
+		</combo_item>
+		<combo_item type="string" length="1" enabled="true" name="(Korean)" value="ko">
+			??? (Korean) - Beta
+		</combo_item>
+	</combo_box>
+	<check_box bottom="-440" control_name="TranslateChat" enabled="true" follows="left|top"
+	     font="SansSerifSmall" height="16" initial_value="false"
+	     label="Translate chat" left="148" mouse_opaque="true"
+	     name="translate_chat" radio_style="false" width="237" />
 </panel>
