@@ -1260,9 +1260,12 @@ BOOL LLViewerImage::forceFetch()
 																		  w, h, c, desired_discard, needsAux());
 
 	if (fetch_request_created)
-	{				
+	{
 		mHasFetcher = TRUE;
 		mIsFetching = TRUE;
+		// Set the image's decode priority to maxDecodePriority() too, or updateFetch() will set
+		// the request priority to 0 and terminate the fetch before we even started (SNOW-203).
+		gImageList.bumpToMaxDecodePriority(this);
 		mRequestedDiscardLevel = desired_discard ;
 
 		mFetchState = LLAppViewer::getTextureFetch()->getFetchState(mID, mDownloadProgress, mRequestedDownloadPriority,
@@ -1598,18 +1601,7 @@ bool LLViewerImage::bindDefaultImage(S32 stage)
 //virtual
 void LLViewerImage::forceImmediateUpdate()
 {
-	//only immediately update a deleted texture which is now being re-used.
-	if(!isDeleted())
-	{
-		return ;
-	}
-	//if already called forceImmediateUpdate()
-	if(mInImageList && mDecodePriority == LLViewerImage::maxDecodePriority())
-	{
-		return ;
-	}
-
-	gImageList.forceImmediateUpdate(this) ;
+	gImageList.bumpToMaxDecodePriority(this) ;
 	return ;
 }
 
