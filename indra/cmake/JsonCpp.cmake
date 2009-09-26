@@ -2,6 +2,9 @@
 
 include(Prebuilt)
 
+set(JSONCPP_FIND_QUIETLY ON)
+set(JSONCPP_FIND_REQUIRED ON)
+
 if (STANDALONE)
   include(FindJsonCpp)
 else (STANDALONE)
