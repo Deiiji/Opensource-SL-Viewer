@@ -15,8 +15,8 @@ FIND_PATH(JSONCPP_INCLUDE_DIR jsoncpp/json.h
 )
 
 # Get the GCC compiler version
-EXEC_PROGRAM(${CMAKE_CXX_COMPILER} 
-            ARGS -dumpversion
+EXEC_PROGRAM(${CMAKE_CXX_COMPILER}
+            ARGS ${CMAKE_CXX_COMPILER_ARG1} -dumpversion
             OUTPUT_VARIABLE _gcc_COMPILER_VERSION
             OUTPUT_STRIP_TRAILING_WHITESPACE
             )
