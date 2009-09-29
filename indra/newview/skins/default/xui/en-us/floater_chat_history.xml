@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater bottom="27" can_close="true" can_drag_on_left="false" can_minimize="false"
      can_resize="true" can_tear_off="true" enabled="true" height="270" left="15"
-     min_height="150" min_width="425" mouse_opaque="true" name="chat floater"
+     min_height="150" min_width="580" mouse_opaque="true" name="chat floater"
      rect_control="FloaterChatRect" title="Local Chat" width="435">
 	<string name="ringing">
 		Connecting to in-world Voice Chat...
@@ -78,6 +78,9 @@
 			<check_box bottom_delta="0" enabled="true" follows="left|top" font="SansSerifSmall"
 			     height="20" initial_value="false" label="Show Muted Text" left_delta="125"
 			     name="show mutes" radio_style="false" width="116" />
+			<check_box bottom_delta="0" enabled="true" follows="left|top" font="SansSerifSmall"
+			     height="20" initial_value="false" label="Translate chat to my language (powered by Google)" left_delta="200"
+			     name="translate chat" radio_style="false" width="100" />
 			<button bottom_delta="0" follows="right|top" height="20" label="&lt; &lt;"
 			     label_selected="&gt; &gt;" left="272" name="toggle_active_speakers_btn"
 			     right="305"
