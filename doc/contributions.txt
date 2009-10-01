@@ -310,6 +310,8 @@ Kerutsen Sellery
 	VWR-1350
 Khyota Wulluf
 	VWR-9256
+Kitty Barnett
+	VWR-14766
 Kunnis Basiat
 	VWR-82
 	VWR-102

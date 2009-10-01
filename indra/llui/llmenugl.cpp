@@ -2782,7 +2782,7 @@ LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, BOOL skip_disa
 	while(1)
 	{
 		// skip separators and disabled/invisible items
-		if ((*prev_item_iter)->getEnabled() && (*prev_item_iter)->getVisible() && (*prev_item_iter)->getName() != SEPARATOR_NAME)
+		if ((*prev_item_iter)->getEnabled() && (*prev_item_iter)->getVisible() && (*prev_item_iter)->getType() != SEPARATOR_NAME)
 		{
 			(*prev_item_iter)->setHighlight(TRUE);
 			return (*prev_item_iter);
