@@ -604,6 +604,7 @@ Thickbrick Sleaford
 	SNOW-22
 	SNOW-100
 	SNOW-207
+	SNOW-247
 Thraxis Epsilon
 	SVC-371
 	VWR-383

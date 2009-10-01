@@ -2233,24 +2233,22 @@ void process_decline_callingcard(LLMessageSystem* msg, void**)
 class ChatTranslationReceiver : public LLTranslate::TranslationReceiver
 {
 public :
-	ChatTranslationReceiver(const std::string &fromLang, const std::string &toLang, const std::string &mesg, LLChat *chat, 
+	ChatTranslationReceiver(const std::string &fromLang, const std::string &toLang, LLChat *chat, 
 		const BOOL history)
-		: LLTranslate::TranslationReceiver(fromLang, toLang, mesg),
+		: LLTranslate::TranslationReceiver(fromLang, toLang),
 		m_chat(chat),
 		m_history(history)	
 	{
 	}
 
-	static boost::intrusive_ptr<ChatTranslationReceiver> build(const std::string &fromLang, const std::string &toLang, const std::string &mesg, LLChat *chat, const BOOL history)
+	static boost::intrusive_ptr<ChatTranslationReceiver> build(const std::string &fromLang, const std::string &toLang, LLChat *chat, const BOOL history)
 	{
-		return boost::intrusive_ptr<ChatTranslationReceiver>(new ChatTranslationReceiver(fromLang, toLang, mesg, chat, history));
+		return boost::intrusive_ptr<ChatTranslationReceiver>(new ChatTranslationReceiver(fromLang, toLang, chat, history));
 	}
 
 protected:
 	void handleResponse(const std::string &translation, const std::string &detectedLanguage)
 	{		
-		m_chat->mText += m_mesg;
-
 		if (m_toLang != detectedLanguage)
 			m_chat->mText += " (" + translation + ")";			
 
@@ -2262,8 +2260,6 @@ protected:
 	void handleFailure()
 	{
 		LLTranslate::TranslationReceiver::handleFailure();
-
-		m_chat->mText += m_mesg;
 
 		m_chat->mText += " (?)";
 
@@ -2301,12 +2297,11 @@ void check_translate_chat(const std::string &mesg, LLChat &chat, const BOOL hist
 		const std::string &toLang = LLTranslate::getTranslateLanguage();
 		LLChat *newChat = new LLChat(chat);
 
-		LLHTTPClient::ResponderPtr result = ChatTranslationReceiver::build(fromLang, toLang, mesg, newChat, history);
+		LLHTTPClient::ResponderPtr result = ChatTranslationReceiver::build(fromLang, toLang, newChat, history);
 		LLTranslate::translateMessage(result, fromLang, toLang, mesg);
 	}
 	else
 	{
-		chat.mText += mesg;
 		add_floater_chat(chat, history);
 	}
 }
@@ -2420,6 +2415,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			mesg = mesg.substr(3);
 			ircstyle = TRUE;
 		}
+		chat.mText += mesg;
 
 		// Look for the start of typing so we can put "..." in the bubbles.
 		if (CHAT_TYPE_START == chat.mChatType)
@@ -2488,9 +2484,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				break;
 			}
 
-
-			chat.mText = from_name;
-			chat.mText += verb;
+			chat.mText = from_name + verb + mesg;
 		}
 		
 		if (chatter)

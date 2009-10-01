@@ -43,10 +43,9 @@ public :
 	class TranslationReceiver: public LLHTTPClient::Responder
 	{
 	protected:
-		TranslationReceiver(const std::string &fromLang, const std::string &toLang, const std::string &mesg)
+		TranslationReceiver(const std::string &fromLang, const std::string &toLang)
 			: m_fromLang(fromLang),
-			m_toLang(toLang),
-			m_mesg(mesg)
+			m_toLang(toLang)
 		{
 		}
 
@@ -97,7 +96,6 @@ public :
 		}
 
 	protected:
-		const std::string m_mesg;
 		const std::string m_toLang;
 		const std::string m_fromLang;
 	};
