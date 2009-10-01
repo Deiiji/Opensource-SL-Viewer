@@ -4214,6 +4214,8 @@ LLXMLNodePtr LLTextEditor::getXML(bool save_children) const
 {
 	LLXMLNodePtr node = LLUICtrl::getXML();
 
+	node->setName(LL_SIMPLE_TEXT_EDITOR_TAG);
+
 	// Attributes
 
 	node->createChild("max_length", TRUE)->setIntValue(getMaxLength());

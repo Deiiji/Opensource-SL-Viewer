@@ -12,6 +12,8 @@ Able Whitman
 	VWR-1813
 Adam Marker
 	VWR-2755
+Admiral Admiral
+	VWR-15310
 Agathos Frascati
 	CT-246
 	CT-317
