@@ -419,12 +419,14 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	calcWorkPriority();
 	mType = host.isOk() ? LLImageBase::TYPE_AVATAR_BAKE : LLImageBase::TYPE_NORMAL;
 // 	llinfos << "Create: " << mID << " mHost:" << host << " Discard=" << discard << llendl;
+	lockWorkMutex();
 	if (!mFetcher->mDebugPause)
 	{
 		U32 work_priority = mWorkPriority | LLWorkerThread::PRIORITY_HIGH;
 		addWork(0, work_priority );
 	}
 	setDesiredDiscard(discard, size);
+	unlockWorkMutex();
 }
 
 LLTextureFetchWorker::~LLTextureFetchWorker()
