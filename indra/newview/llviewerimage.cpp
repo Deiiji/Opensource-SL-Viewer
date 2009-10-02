@@ -1015,6 +1015,7 @@ bool LLViewerImage::updateFetch()
 	S32 desired_discard = getDesiredDiscardLevel();
 	F32 decode_priority = getDecodePriority();
 	decode_priority = llmax(decode_priority, 0.0f);
+	decode_priority = llmin(decode_priority, maxDecodePriority());
 	
 	if (mIsFetching)
 	{
