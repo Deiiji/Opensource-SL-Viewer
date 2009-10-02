@@ -177,6 +177,7 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mLastIndicesIndex = mIndicesIndex;
 
 	mImportanceToCamera = 0.f ;
+	mBoundingSphereRadius = 0.0f ;
 }
 
 
@@ -726,7 +727,9 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		}
 
 		mCenterLocal = (newMin+newMax)*0.5f;
-		
+		LLVector3 tmp = (newMin - newMax) ;
+		mBoundingSphereRadius = tmp.length() * 0.5f ;
+
 		updateCenterAgent();
 	}
 
@@ -1248,9 +1251,17 @@ F32 LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 	radius = app_angle*LLDrawable::sCurPixelAngle;
 	F32 face_area = radius*radius * 3.14159f;
 
-	cos_angle_to_view_dir = lookAt * LLViewerCamera::getInstance()->getXAxis() ;	
-	mImportanceToCamera = LLFace::calcImportanceToCamera(cos_angle_to_view_dir, dist) ;
-	
+	if(dist < mBoundingSphereRadius) //camera is very close
+	{
+		cos_angle_to_view_dir = 1.0f ;
+		mImportanceToCamera = 1.0f ;
+	}
+	else
+	{
+		cos_angle_to_view_dir = lookAt * LLViewerCamera::getInstance()->getXAxis() ;	
+		mImportanceToCamera = LLFace::calcImportanceToCamera(cos_angle_to_view_dir, dist) ;
+	}
+
 	return face_area ;
 }
 
