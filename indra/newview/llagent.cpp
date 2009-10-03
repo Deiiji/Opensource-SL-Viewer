@@ -76,6 +76,7 @@
 #include "llfloaterdirectory.h"
 #include "llfloatergroupinfo.h"
 #include "llfloatergroups.h"
+#include "llfloaterland.h"
 #include "llfloatermap.h"
 #include "llfloatermute.h"
 #include "llfloatersnapshot.h"
@@ -112,6 +113,7 @@
 #include "llurldispatcher.h"
 #include "llviewercamera.h"
 #include "llviewerinventory.h"
+#include "llviewermediafocus.h"
 #include "llviewermenu.h"
 #include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
@@ -5989,7 +5991,11 @@ bool LLAgent::teleportCore(bool is_local)
 	LLFloaterWorldMap::hide(NULL);
 	LLFloaterDirectory::hide(NULL);
 
+	// hide land floater too - it'll be out of date
+	LLFloaterLand::hideInstance();
+	
 	LLViewerParcelMgr::getInstance()->deselectLand();
+	LLViewerMediaFocus::getInstance()->setFocusFace(false, NULL, 0, NULL);
 
 	// Close all pie menus, deselect land, etc.
 	// Don't change the camera until we know teleport succeeded. JC

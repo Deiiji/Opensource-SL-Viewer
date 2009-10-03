@@ -195,7 +195,7 @@ public:
 	enum { FTM_MAX_DEPTH = 64 };
 	
 public:
-	static LLFastTimer::EFastTimerType sCurType;
+	static EFastTimerType sCurType;
 
 	LLFastTimer(EFastTimerType type)
 	{
