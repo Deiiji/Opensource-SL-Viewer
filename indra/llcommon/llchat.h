@@ -79,8 +79,7 @@ public:
 		mMuted(FALSE),
 		mTime(0.0),
 		mPosAgent(),
-		mURL(),
-		mLanguage()
+		mURL()
 	{ }
 	
 	LLChat(const LLChat &chat)
@@ -93,8 +92,7 @@ public:
 		mMuted(chat.mMuted),
 		mTime(chat.mTime),
 		mPosAgent(chat.mPosAgent),
-		mURL(chat.mURL),
-		mLanguage(chat.mLanguage)
+		mURL(chat.mURL)
 	{ }
 
 	std::string		mText;		// UTF-8 line of text
@@ -107,7 +105,6 @@ public:
 	F64				mTime;		// viewer only, seconds from viewer start
 	LLVector3		mPosAgent;
 	std::string		mURL;
-	std::string		mLanguage;
 };
 
 #endif

@@ -2293,7 +2293,9 @@ void check_translate_chat(const std::string &mesg, LLChat &chat, const BOOL hist
 
 	if (translate && chat.mSourceType != CHAT_SOURCE_SYSTEM)
 	{
-		const std::string &fromLang = chat.mLanguage;
+		// fromLang hardcoded to "" (autodetection) pending implementation of
+		// SVC-4879
+		const std::string &fromLang = "";
 		const std::string &toLang = LLTranslate::getTranslateLanguage();
 		LLChat *newChat = new LLChat(chat);
 
@@ -2319,7 +2321,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	LLUUID		owner_id;
 	BOOL		is_owned_by_me = FALSE;
 	LLViewerObject*	chatter;
-	std::string	language;
 
 	msg->getString("ChatData", "FromName", from_name);
 	chat.mFromName = from_name;
@@ -2340,17 +2341,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	chat.mAudible = (EChatAudible)audible_temp;
 	
 	chat.mTime = LLFrameTimer::getElapsedSeconds();
-
-	// Empty language value implies automatic language detection.
-	// TODO: Check if the source is an agent to decide whether to
-	// read the language value. Waiting on server fix for this.
-	// if (chat.mSourceType == CHAT_SOURCE_AGENT)
-	int languageSize = msg->getSize(_PREHASH_ChatData, _PREHASH_Language);
-	if (languageSize > 0)
-	{
-		msg->getString(_PREHASH_ChatData, _PREHASH_Language, language);
-		chat.mLanguage = language;
-	}
 
 	BOOL is_busy = gAgent.getBusy();
 
