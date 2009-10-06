@@ -2419,7 +2419,7 @@ void LLAppViewer::handleViewerCrash()
 		llinfos << "Creating crash marker file " << crash_file_name << llendl;
 		
 		LLAPRFile crash_file ;
-		crash_file.open(crash_file_name, LL_APR_W, LLAPRFile::global);
+		crash_file.open(crash_file_name, LL_APR_W, LLAPRFile::local);
 		if (crash_file.getFileHandle())
 		{
 			LL_INFOS("MarkerFile") << "Created crash marker file " << crash_file_name << LL_ENDL;
