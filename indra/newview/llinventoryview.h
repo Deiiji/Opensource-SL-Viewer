@@ -256,6 +256,7 @@ public:
 	static LLUUID sWearNewClothingTransactionID;	// wear all clothing in this transaction
 
 	void toggleFindOptions();
+	void updateSortControls();
 
 	LLInventoryViewFinder* getFinder() { return (LLInventoryViewFinder*)mFinderHandle.get(); }
 

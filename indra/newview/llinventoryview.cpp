@@ -455,7 +455,8 @@ LLInventoryView::LLInventoryView(const std::string& name,
 								 LLInventoryModel* inventory) :
 	LLFloater(name, rect, std::string("Inventory"), RESIZE_YES,
 			  INV_MIN_WIDTH, INV_MIN_HEIGHT, DRAG_ON_TOP,
-			  MINIMIZE_NO, CLOSE_YES)
+			  MINIMIZE_NO, CLOSE_YES),
+	mActivePanel(NULL)
 	//LLHandle<LLFloater> mFinderHandle takes care of its own initialization
 {
 	init(inventory);
@@ -466,7 +467,8 @@ LLInventoryView::LLInventoryView(const std::string& name,
 								 LLInventoryModel* inventory) :
 	LLFloater(name, rect, std::string("Inventory"), RESIZE_YES,
 			  INV_MIN_WIDTH, INV_MIN_HEIGHT, DRAG_ON_TOP,
-			  MINIMIZE_NO, CLOSE_YES)
+			  MINIMIZE_NO, CLOSE_YES),
+	mActivePanel(NULL)
 	//LLHandle<LLFloater> mFinderHandle takes care of its own initialization
 {
 	init(inventory);
@@ -480,16 +482,12 @@ void LLInventoryView::init(LLInventoryModel* inventory)
 	init_inventory_actions(this);
 
 	// Controls
-	U32 sort_order = gSavedSettings.getU32("InventorySortOrder");
-	BOOL sort_by_name = ! ( sort_order & LLInventoryFilter::SO_DATE );
-	BOOL sort_folders_by_name = ( sort_order & LLInventoryFilter::SO_FOLDERS_BY_NAME );
-	BOOL sort_system_folders_to_top = ( sort_order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP );
-
 	addBoolControl("Inventory.ShowFilters", FALSE);
-	addBoolControl("Inventory.SortByName", sort_by_name );
-	addBoolControl("Inventory.SortByDate", ! sort_by_name );
-	addBoolControl("Inventory.FoldersAlwaysByName", sort_folders_by_name );
-	addBoolControl("Inventory.SystemFoldersToTop", sort_system_folders_to_top );
+	addBoolControl("Inventory.SortByName", FALSE);
+	addBoolControl("Inventory.SortByDate", TRUE);
+	addBoolControl("Inventory.FoldersAlwaysByName", TRUE);
+	addBoolControl("Inventory.SystemFoldersToTop", TRUE);
+	updateSortControls();
 
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -531,11 +529,11 @@ void LLInventoryView::init(LLInventoryModel* inventory)
 	std::ostringstream filterSaveName;
 	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "filters.xml");
 	llinfos << "LLInventoryView::init: reading from " << filterSaveName << llendl;
-    llifstream file(filterSaveName.str());
+	llifstream file(filterSaveName.str());
 	LLSD savedFilterState;
-    if (file.is_open())
-    {
-        LLSDSerialize::fromXML(savedFilterState, file);
+	if (file.is_open())
+	{
+		LLSDSerialize::fromXML(savedFilterState, file);
 		file.close();
 
 		// Load the persistent "Recent Items" settings.
@@ -549,8 +547,7 @@ void LLInventoryView::init(LLInventoryModel* inventory)
 				recent_items_panel->getFilter()->fromLLSD(recent_items);
 			}
 		}
-
-    }
+	}
 
 
 	mSearchEditor = getChild<LLSearchEditor>("inventory search editor");
@@ -927,6 +924,19 @@ void LLInventoryView::toggleFindOptions()
 	}
 }
 
+void LLInventoryView::updateSortControls()
+{
+	U32 order = mActivePanel ? mActivePanel->getSortOrder() : gSavedSettings.getU32("InventorySortOrder");
+	bool sort_by_date = order & LLInventoryFilter::SO_DATE;
+	bool folders_by_name = order & LLInventoryFilter::SO_FOLDERS_BY_NAME;
+	bool sys_folders_on_top = order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP;
+
+	getControl("Inventory.SortByDate")->setValue(sort_by_date);
+	getControl("Inventory.SortByName")->setValue(!sort_by_date);
+	getControl("Inventory.FoldersAlwaysByName")->setValue(folders_by_name);
+	getControl("Inventory.SystemFoldersToTop")->setValue(sys_folders_on_top);
+}
+
 // static
 BOOL LLInventoryView::filtersVisible(void* user_data)
 {
@@ -1061,6 +1071,7 @@ void LLInventoryView::onFilterSelected(void* userdata, bool from_click)
 		gInventory.startBackgroundFetch();
 	}
 	self->setFilterTextFromFilter();
+	self->updateSortControls();
 }
 
 // static
