@@ -105,6 +105,8 @@ class ViewerManifest(LLManifest):
         # whether or not this is present
         return self.args.get('login_channel')
 
+    def buildtype(self):
+        return self.args['buildtype']
     def grid(self):
         return self.args['grid']
     def channel(self):
@@ -519,10 +521,11 @@ class DarwinManifest(ViewerManifest):
         # annotated backtraces (i.e. function names in the crash log).  'strip' with no
         # arguments yields a slightly smaller binary but makes crash logs mostly useless.
         # This may be desirable for the final release.  Or not.
-        if ("package" in self.args['actions'] or 
-            "unpacked" in self.args['actions']):
-            self.run_command('strip -S "%(viewer_binary)s"' %
-                             { 'viewer_binary' : self.dst_path_of('Contents/MacOS/'+self.app_name())})
+        if self.buildtype()=='Release':
+            if ("package" in self.args['actions'] or 
+                "unpacked" in self.args['actions']):
+                self.run_command('strip -S "%(viewer_binary)s"' %
+                                 { 'viewer_binary' : self.dst_path_of('Contents/MacOS/'+self.app_name())})
 
     def app_name(self):
         mapping={"secondlife":"Second Life",
@@ -715,8 +718,13 @@ class Linux_i686Manifest(LinuxManifest):
             print "Skipping libllkdu.so - not found"
             pass
 
-        self.path("secondlife-stripped","bin/"+self.binary_name())
-        self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
+        if self.buildtype()=='Release':
+            self.path("secondlife-stripped","bin/"+self.binary_name())
+            self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
+        else:
+            self.path("secondlife-bin","bin/"+self.binary_name())
+            self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
+
         self.path("linux_tools/launch_url.sh","launch_url.sh")
         if self.prefix("res-sdl"):
             self.path("*")
@@ -775,8 +783,13 @@ class Linux_i686Manifest(LinuxManifest):
 class Linux_x86_64Manifest(LinuxManifest):
     def construct(self):
         super(Linux_x86_64Manifest, self).construct()
-        self.path("secondlife-stripped","bin/"+self.binary_name())
-        self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
+        if self.buildtype()=='Release':
+            self.path("secondlife-stripped","bin/"+self.binary_name())
+            self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
+        else:
+            self.path("secondlife-bin","bin/"+self.binary_name())
+            self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
+
         self.path("linux_tools/launch_url.sh","launch_url.sh")
         if self.prefix("res-sdl"):
             self.path("*")
