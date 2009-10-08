@@ -26,6 +26,7 @@ set(all_targets ${all_targets} ${out_targets})
 set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
 set(debug_files
     openjpegd.dll
+    windbgdlg.exe
     )
 
 copy_if_different(
@@ -395,6 +396,7 @@ add_custom_target(copy_win_libs ALL
     ${relwithdebinfo_appconfig_file} 
     ${debug_appconfig_file}
   )
+add_dependencies(copy_win_libs prepare)
 
 if(EXISTS ${internal_llkdu_path})
     add_dependencies(copy_win_libs llkdu)
