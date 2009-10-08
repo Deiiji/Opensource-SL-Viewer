@@ -203,7 +203,6 @@ void LLMediaRemoteCtrl::enableMediaButtons()
 	
 	if (gSavedSettings.getBOOL("AudioStreamingMusic") && gAudiop)
 	{
-	
 		if ( parcel && !parcel->getMusicURL().empty())
 		{
 			play_music_enabled = true;
@@ -220,13 +219,7 @@ void LLMediaRemoteCtrl::enableMediaButtons()
 				stop_music_enabled = false;
 			}
 		}
-		// if no mime type has been set disable play
-		if( LLViewerParcelMedia::getMimeType().empty() 
-			|| LLViewerParcelMedia::getMimeType() == "none/none")
-		{
-			play_music_enabled = false;
-			stop_music_enabled = false;
-		}
+		// Don't test the mime-type: this is not updated in a consistent basis. The existence of a valid gAudiop is enough guarantee.
 	}
 	const std::string media_icon_name = LLMIMETypes::findIcon(media_type);
 	LLButton* music_play_btn = getChild<LLButton>("music_play");
