@@ -423,7 +423,13 @@ then
   then
     ( cd .. && svn log --verbose --stop-on-copy --limit 50 ) >>message
   else
-    ( cd .. && svn log --verbose -r`expr 1 + "$PARABUILD_PREVIOUS_CHANGE_LIST_NUMBER"`:"$PARABUILD_CHANGE_LIST_NUMBER" ) >>message
+    if [ "$PARABUILD_PREVIOUS_CHANGE_LIST_NUMBER" -lt "$PARABUILD_CHANGE_LIST_NUMBER" ]
+	then
+	  range=`expr 1 + "$PARABUILD_PREVIOUS_CHANGE_LIST_NUMBER"`:"$PARABUILD_CHANGE_LIST_NUMBER"
+	else
+	  range="$PARABUILD_CHANGE_LIST_NUMBER"
+	fi
+    ( cd .. && svn log --verbose -r"$range" ) >>message
   fi
   # $PUBLIC_EMAIL can be a list, so no quotes
   python "$mail" "$subject" $PUBLIC_EMAIL <message
