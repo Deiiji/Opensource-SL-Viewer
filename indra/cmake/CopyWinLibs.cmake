@@ -26,7 +26,6 @@ set(all_targets ${all_targets} ${out_targets})
 set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
 set(debug_files
     openjpegd.dll
-    windbgdlg.exe
     )
 
 copy_if_different(
