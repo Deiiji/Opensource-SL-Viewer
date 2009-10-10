@@ -506,7 +506,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				U64 address_lo = message_in.getValueU32("address");
 				U64 address_hi = message_in.hasValue("address_1") ? message_in.getValueU32("address_1") : 0;
 				info.mAddress = (void*)((address_lo) |
-							(address_hi * (U64(1)<<31)));
+							(address_hi * (U64(1)<<32)));
 				info.mSize = (size_t)message_in.getValueS32("size");
 				std::string name = message_in.getValue("name");
 				
