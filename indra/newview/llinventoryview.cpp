@@ -501,7 +501,7 @@ void LLInventoryView::init(LLInventoryModel* inventory)
 	if (mActivePanel)
 	{
 		// "All Items" is the previous only view, so it gets the InventorySortOrder
-		mActivePanel->setSortOrder(gSavedSettings.getU32("InventorySortOrder"));
+		mActivePanel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER));
 		mActivePanel->getFilter()->markDefault();
 		mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
 		mActivePanel->setSelectCallback(onSelectionChange, mActivePanel);
@@ -510,7 +510,7 @@ void LLInventoryView::init(LLInventoryModel* inventory)
 	if (recent_items_panel)
 	{
 		recent_items_panel->setSinceLogoff(TRUE);
-		recent_items_panel->setSortOrder(LLInventoryFilter::SO_DATE);
+		recent_items_panel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::RECENTITEMS_SORT_ORDER));
 		recent_items_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 		recent_items_panel->getFilter()->markDefault();
 		recent_items_panel->setSelectCallback(onSelectionChange, recent_items_panel);
@@ -518,7 +518,7 @@ void LLInventoryView::init(LLInventoryModel* inventory)
 	LLInventoryPanel* worn_items_panel = getChild<LLInventoryPanel>("Worn Items");
 	if (worn_items_panel)
 	{
-		worn_items_panel->setSortOrder(gSavedSettings.getU32("InventorySortOrder"));
+		worn_items_panel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::WORNITEMS_SORT_ORDER));
 		worn_items_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 		worn_items_panel->getFilter()->markDefault();
 		worn_items_panel->setFilterWorn(true);
@@ -537,7 +537,7 @@ void LLInventoryView::init(LLInventoryModel* inventory)
 		file.close();
 
 		// Load the persistent "Recent Items" settings.
-		// Note that the "All Items" settings do not persist.
+		// Note that the "All Items" and "Worn Items" settings do not persist per-account.
 		if(recent_items_panel)
 		{
 			if(savedFilterState.has(recent_items_panel->getFilter()->getName()))
@@ -1242,6 +1242,7 @@ LLUIImagePtr get_item_icon(LLAssetType::EType asset_type,
 
 const std::string LLInventoryPanel::DEFAULT_SORT_ORDER = std::string("InventorySortOrder");
 const std::string LLInventoryPanel::RECENTITEMS_SORT_ORDER = std::string("RecentItemsSortOrder");
+const std::string LLInventoryPanel::WORNITEMS_SORT_ORDER = std::string("WornItemsSortOrder");
 const std::string LLInventoryPanel::INHERIT_SORT_ORDER = std::string("");
 
 LLInventoryPanel::LLInventoryPanel(const std::string& name,

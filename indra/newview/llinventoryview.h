@@ -69,6 +69,7 @@ class LLInventoryPanel : public LLPanel
 public:
 	static const std::string DEFAULT_SORT_ORDER;
 	static const std::string RECENTITEMS_SORT_ORDER;
+	static const std::string WORNITEMS_SORT_ORDER;
 	static const std::string INHERIT_SORT_ORDER;
 
 	LLInventoryPanel(const std::string& name,

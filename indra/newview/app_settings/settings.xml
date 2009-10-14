@@ -11884,6 +11884,17 @@
       <key>Value</key>
       <integer>10</integer>
     </map>
+    <key>WornItemsSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies sort key for worn inventory items (+0 = name, +1 = date, +2 = folders always by name, +4 = system folders to top)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>7</integer>
+    </map>
     <key>XferThrottle</key>
     <map>
       <key>Comment</key>
