@@ -120,7 +120,7 @@
 			none
 		</widgettype>
 		<impl>
-			LLMediaImplQuickTime
+			media_plugin_quicktime
 		</impl>
 	</mimetype>
 	<mimetype name="none/none">
@@ -237,6 +237,9 @@
 		<widgettype>
 			audio
 		</widgettype>
+		<impl>
+			media_plugin_quicktime
+		</impl>
 	</mimetype>
 	<mimetype name="audio/mpeg">
 		<label name="audio/mpeg_label">
@@ -245,6 +248,9 @@
 		<widgettype>
 			audio
 		</widgettype>
+		<impl>
+			media_plugin_quicktime
+		</impl>
 	</mimetype>
 	<mimetype name="audio/x-aiff">
 		<label name="audio/x-aiff_label">
@@ -253,6 +259,9 @@
 		<widgettype>
 			audio
 		</widgettype>
+		<impl>
+			media_plugin_quicktime
+		</impl>
 	</mimetype>
 	<mimetype name="audio/x-wav">
 		<label name="audio/x-wav_label">
@@ -261,6 +270,9 @@
 		<widgettype>
 			audio
 		</widgettype>
+		<impl>
+			media_plugin_quicktime
+		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/bmp">
 		<label name="image/bmp_label">
