@@ -4961,23 +4961,14 @@ LLSelectNode::LLSelectNode(LLViewerObject* object, BOOL glow)
 	mSilhouetteExists(FALSE),
 	mDuplicated(FALSE),
 	mTESelectMask(0),
-	mLastTESelected(0)
+	mLastTESelected(0),
+	mName(LLStringUtil::null),
+	mDescription(LLStringUtil::null),
+	mTouchName(LLStringUtil::null),
+	mSitName(LLStringUtil::null),
+	mCreationDate(0)
 {
-	mObject = object;
 	selectAllTEs(FALSE);
-	mIndividualSelection	= FALSE;
-	mTransient		= FALSE;
-	mValid			= FALSE;
-	mPermissions	= new LLPermissions();
-	mInventorySerial = 0;
-	mName = LLStringUtil::null;
-	mDescription = LLStringUtil::null;
-	mTouchName = LLStringUtil::null;
-	mSitName = LLStringUtil::null;
-	mSilhouetteExists = FALSE;
-	mDuplicated = FALSE;
-	mCreationDate = 0;
-
 	saveColors();
 }
 
@@ -5046,7 +5037,14 @@ void LLSelectNode::selectTE(S32 te_index, BOOL selected)
 	{
 		return;
 	}
-	mTESelectMask |= 0x1 << te_index;
+	if (selected)
+	{
+		mTESelectMask |= (0x1 << te_index);
+	}
+	else
+	{
+		mTESelectMask &= ~(0x1 << te_index);
+	}
 	mLastTESelected = te_index;
 }
 

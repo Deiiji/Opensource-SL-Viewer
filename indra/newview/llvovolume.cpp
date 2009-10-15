@@ -1693,7 +1693,7 @@ void LLVOVolume::generateSilhouette(LLSelectNode* nodep, const LLVector3& view_p
 			trans_mat.translate(getRegion()->getOriginAgent());
 		}
 
-		volume->generateSilhouetteVertices(nodep->mSilhouetteVertices, nodep->mSilhouetteNormals, nodep->mSilhouetteSegments, view_vector, trans_mat, mRelativeXformInvTrans, nodep->getTESelectMask());
+		volume->generateSilhouetteVertices(nodep->mSilhouetteVertices, nodep->mSilhouetteNormals, nodep->mSilhouetteSegments, view_vector, trans_mat, mRelativeXformInvTrans);
 
 		nodep->mSilhouetteExists = TRUE;
 	}
