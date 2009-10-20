@@ -50,9 +50,11 @@ public:
 
 private:
 	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
+	static void onClickSoundHelp(void*);
 
 private:
 	LLCheckBoxCtrl* mCheckSoundLocal;
+	LLButton*		mSoundHelpButton;
 	LLRadioGroup*	mRadioVoiceChat;
 	LLLineEditor*	mMusicURLEdit;
 	LLCheckBoxCtrl* mMusicUrlCheck;

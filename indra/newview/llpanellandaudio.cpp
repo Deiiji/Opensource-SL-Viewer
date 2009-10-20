@@ -69,7 +69,13 @@ enum
 //---------------------------------------------------------------------------
 
 LLPanelLandAudio::LLPanelLandAudio(LLParcelSelectionHandle& parcel)
-:	LLPanel(std::string("land_media_panel")), mParcel(parcel)
+:	LLPanel(),
+	mParcel(parcel),
+	mCheckSoundLocal(NULL),
+	mSoundHelpButton(NULL),
+	mRadioVoiceChat(NULL),
+	mMusicURLEdit(NULL),
+	mMusicUrlCheck(NULL)
 {
 }
 
@@ -85,6 +91,9 @@ BOOL LLPanelLandAudio::postBuild()
 	mCheckSoundLocal = getChild<LLCheckBoxCtrl>("check_sound_local");
 	childSetCommitCallback("check_sound_local", onCommitAny, this);
 
+	mSoundHelpButton = getChild<LLButton>("?");
+	mSoundHelpButton->setClickedCallback(onClickSoundHelp, this);
+	
 	mRadioVoiceChat = getChild<LLRadioGroup>("parcel_voice_channel");
 	childSetCommitCallback("parcel_voice_channel", onCommitAny, this);
 
@@ -119,6 +128,9 @@ void LLPanelLandAudio::refresh()
 
 		mMusicUrlCheck->set( parcel->getObscureMusic() );
 		mMusicUrlCheck->setEnabled( can_change_media );
+
+		bool obscure_music = ! can_change_media && parcel->getObscureMusic();
+		mMusicURLEdit->setDrawAsterixes( obscure_music );
 
 		mCheckSoundLocal->set( parcel->getSoundLocal() );
 		mCheckSoundLocal->setEnabled( can_change_media );
@@ -193,3 +205,10 @@ void LLPanelLandAudio::onCommitAny(LLUICtrl*, void *userdata)
 	// Might have changed properties, so let's redraw!
 	self->refresh();
 }
+
+
+// static 
+void LLPanelLandAudio::onClickSoundHelp(void*)
+{ 
+	LLNotifications::instance().add("ClickSoundHelpLand");
+} 
