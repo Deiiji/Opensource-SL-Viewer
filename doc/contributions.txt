@@ -162,6 +162,7 @@ bushing Spatula
 	VWR-119
 	VWR-424
 Carjay McGinnis
+	SNOW-321
 	VWR-3737
 	VWR-4070
 	VWR-4212

@@ -411,6 +411,11 @@ LLPanelLogin::~LLPanelLogin()
 
 	//// We know we're done with the image, so be rid of it.
 	//gImageList.deleteImage( mLogoImage );
+	
+	if ( gFocusMgr.getDefaultKeyboardFocus() == this )
+	{
+		gFocusMgr.setDefaultKeyboardFocus(NULL);
+	}
 }
 
 // virtual
