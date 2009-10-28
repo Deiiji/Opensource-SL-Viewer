@@ -163,7 +163,7 @@ public:
 		viewer_media_t mMediaImpl;
 		bool mInitialized;
 };
-typedef std::vector<LLViewerMediaImpl*> impl_list;
+typedef std::list<LLViewerMediaImpl*> impl_list;
 static impl_list sViewerMediaImplList;
 
 //////////////////////////////////////////////////////////////////////////////////////////
