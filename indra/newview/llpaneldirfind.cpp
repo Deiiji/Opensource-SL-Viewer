@@ -63,6 +63,10 @@
 #include "llfloaterdirectory.h"
 #include "llpaneldirbrowser.h"
 
+#if LL_MSVC
+// disable boost::lexical_cast warning
+#pragma warning (disable:4702)
+#endif
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 
