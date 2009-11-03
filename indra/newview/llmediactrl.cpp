@@ -633,6 +633,14 @@ void LLMediaCtrl::draw()
 		x_offset = (r.getWidth() - width) / 2;
 		y_offset = (r.getHeight() - height) / 2;		
 
+		if (mIgnoreUIScale)
+		{
+			width = llround((F32)width * LLUI::sGLScaleFactor.mV[VX]);
+			height = llround((F32)height * LLUI::sGLScaleFactor.mV[VY]);
+			x_offset = llround((F32)x_offset * LLUI::sGLScaleFactor.mV[VX]);
+			y_offset = llround((F32)y_offset * LLUI::sGLScaleFactor.mV[VY]);
+		}
+
 		// draw the browser
 		gGL.setSceneBlendType(LLRender::BT_REPLACE);
 		gGL.begin( LLRender::QUADS );
