@@ -49,6 +49,18 @@
 #include <stdlib.h>
 #endif
 
+#if LL_WINDOWS
+	// NOTE - This captures the module handle of the dll. This is used below
+	// to get the path to this dll for webkit initialization.
+	// I don't know how/if this can be done with apr...
+	namespace {	HMODULE gModuleHandle;};
+	BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+	{
+		gModuleHandle = (HMODULE) hinstDLL;
+		return TRUE;
+	}
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 class MediaPluginWebKit : 
@@ -127,7 +139,31 @@ private:
 			return false;
 		}
 		std::string application_dir = std::string( cwd );
+
+#if LL_WINDOWS
+		// NOTE - On windows, at least, the component path is the
+		// location of this dll's image file. 
+		std::string component_dir;
+		char dll_path[_MAX_PATH];
+		DWORD len = GetModuleFileNameA(gModuleHandle, (LPCH)&dll_path, _MAX_PATH);
+		while(len && dll_path[ len ] != ('\\') )
+		{
+			len--;
+		}
+		if(len >= 0)
+		{
+			dll_path[len] = 0;
+			component_dir = dll_path;
+		}
+		else
+		{
+			// NOTE - This case should be a rare exception. 
+			// GetModuleFileNameA should always give you a full path.
+			component_dir = application_dir;
+		}
+#else
 		std::string component_dir = application_dir;
+#endif
 		std::string profileDir = application_dir + "/" + "browser_profile";		// cross platform?
 
 		// window handle - needed on Windows and must be app window.
@@ -146,8 +182,16 @@ private:
 			// create single browser window
 			mBrowserWindowId = LLQtWebKit::getInstance()->createBrowserWindow( mWidth, mHeight );
 
+#if LL_WINDOWS
 			// Enable plugins
 			LLQtWebKit::getInstance()->enablePlugins(true);
+#elif LL_DARWIN
+			// Disable plugins
+			LLQtWebKit::getInstance()->enablePlugins(false);
+#elif LL_LINUX
+			// Disable plugins
+			LLQtWebKit::getInstance()->enablePlugins(false);
+#endif
             
 			// tell LLQtWebKit about the size of the browser window
 			LLQtWebKit::getInstance()->setSize( mBrowserWindowId, mWidth, mHeight );
@@ -160,6 +204,9 @@ private:
 
 			// don't flip bitmap
 			LLQtWebKit::getInstance()->flipWindow( mBrowserWindowId, true );
+			
+			// Set the background color to black - mostly for initial login page
+			LLQtWebKit::getInstance()->setBackgroundColor( mBrowserWindowId, 0x00, 0x00, 0x00 );
 
 			// go to the "home page"
 			// Don't do this here -- it causes the dreaded "white flash" when loading a browser instance.
@@ -260,7 +307,16 @@ private:
 		message.setValue("status", event.getStringValue());
 		sendMessage(message);
 	}
-	
+
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
+	void onTitleChange(const EventType& event)
+	{
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "name_text");
+		message.setValue("name", event.getStringValue());
+		sendMessage(message);
+	}
+
 	////////////////////////////////////////////////////////////////////////////////
 	// virtual
 	void onLocationChange(const EventType& event)
@@ -479,8 +535,8 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				mDepth = 4;
 
 				message.setMessage(LLPLUGIN_MESSAGE_CLASS_MEDIA, "texture_params");
-				message.setValueS32("default_width", 800);
-				message.setValueS32("default_height", 600);
+				message.setValueS32("default_width", 1024);
+				message.setValueS32("default_height", 1024);
 				message.setValueS32("depth", mDepth);
 				message.setValueU32("internalformat", GL_RGBA);
 				message.setValueU32("format", GL_RGBA);

@@ -173,7 +173,13 @@ class WindowsManifest(ViewerManifest):
         # the final exe is complicated because we're not sure where it's coming from,
         # nor do we have a fixed name for the executable
         self.path(self.find_existing_file('debug/secondlife-bin.exe', 'release/secondlife-bin.exe', 'relwithdebinfo/secondlife-bin.exe'), dst=self.final_exe())
-        # need to get the kdu dll from any of the build directories as well
+
+        # Plugin host application
+        self.path(os.path.join(os.pardir,
+                               'llplugin', 'slplugin', self.args['configuration'], "SLPlugin.exe"),
+                  "SLPlugin.exe")
+        
+      	# need to get the kdu dll from any of the build directories as well
         try:
             self.path(self.find_existing_file('../llkdu/%s/llkdu.dll' % self.args['configuration'],
                 '../../libraries/i686-win32/lib/release/llkdu.dll'), 
@@ -195,11 +201,6 @@ class WindowsManifest(ViewerManifest):
         # For textures
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
             self.path("openjpeg.dll")
-            self.end_prefix()
-
-        # Plugin host application
-        if self.prefix(src='../llplugin/slplugin/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("slplugin.exe")
             self.end_prefix()
 
         # Media plugins - QuickTime
@@ -505,9 +506,11 @@ class DarwinManifest(ViewerManifest):
                 self.path("../mac_crash_logger/" + self.args['configuration'] + "/mac-crash-logger.app", "mac-crash-logger.app")
                 self.path("../mac_updater/" + self.args['configuration'] + "/mac-updater.app", "mac-updater.app")
 
+                # plugin launcher
+                self.path("../llplugin/slplugin/" + self.args['configuration'] + "/SLPlugin", "SLPlugin")
+
                 # plugins
                 if self.prefix(src="", dst="llplugin"):
-                    self.path("../llplugin/slplugin/" + self.args['configuration'] + "/SLPlugin", "SLPlugin")
                     self.path("../media_plugins/quicktime/" + self.args['configuration'] + "/media_plugin_quicktime.dylib", "media_plugin_quicktime.dylib")
                     self.path("../media_plugins/webkit/" + self.args['configuration'] + "/media_plugin_webkit.dylib", "media_plugin_webkit.dylib")
                     self.path("../../libraries/universal-darwin/lib_release/libllqtwebkit.dylib", "libllqtwebkit.dylib")
@@ -730,6 +733,7 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
 
         self.path("linux_tools/launch_url.sh","launch_url.sh")
+        self.path("../llplugin/slplugin/SLPlugin", "bin/SLPlugin")
         if self.prefix("res-sdl"):
             self.path("*")
             # recurse
@@ -737,7 +741,6 @@ class Linux_i686Manifest(LinuxManifest):
 
         # plugins
         if self.prefix(src="", dst="bin/llplugin"):
-            self.path("../llplugin/slplugin/SLPlugin", "SLPlugin")
             self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
             self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_quicktime.so")
             self.end_prefix("bin/llplugin")
