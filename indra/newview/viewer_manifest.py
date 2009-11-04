@@ -652,6 +652,28 @@ class LinuxManifest(ViewerManifest):
         # Create an appropriate gridargs.dat for this package, denoting required grid.
         self.put_in_file(self.flags_list(), 'gridargs.dat')
 
+        if self.buildtype()=='Release':
+            self.path("secondlife-stripped","bin/"+self.binary_name())
+            self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
+        else:
+            self.path("secondlife-bin","bin/"+self.binary_name())
+            self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
+
+        self.path("linux_tools/launch_url.sh","launch_url.sh")
+        self.path("../llplugin/slplugin/SLPlugin", "bin/SLPlugin")
+        if self.prefix("res-sdl"):
+            self.path("*")
+            # recurse
+            self.end_prefix("res-sdl")
+
+        # plugins
+        if self.prefix(src="", dst="bin/llplugin"):
+            self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
+            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_quicktime.so")
+            self.end_prefix("bin/llplugin")
+
+        self.path("featuretable_linux.txt")
+
     def wrapper_name(self):
         mapping={"secondlife":"secondlife",
                  "snowglobe":"snowglobe"}
@@ -725,29 +747,6 @@ class Linux_i686Manifest(LinuxManifest):
             print "Skipping libllkdu.so - not found"
             pass
 
-        if self.buildtype()=='Release':
-            self.path("secondlife-stripped","bin/"+self.binary_name())
-            self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
-        else:
-            self.path("secondlife-bin","bin/"+self.binary_name())
-            self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
-
-        self.path("linux_tools/launch_url.sh","launch_url.sh")
-        self.path("../llplugin/slplugin/SLPlugin", "bin/SLPlugin")
-        if self.prefix("res-sdl"):
-            self.path("*")
-            # recurse
-            self.end_prefix("res-sdl")
-
-        # plugins
-        if self.prefix(src="", dst="bin/llplugin"):
-            self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
-            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_quicktime.so")
-            self.end_prefix("bin/llplugin")
-
-        self.path("featuretable_linux.txt")
-        #self.path("secondlife-i686.supp")
-
         if self.prefix("../../libraries/i686-linux/lib_release_client", dst="lib"):
 
             try:
@@ -790,27 +789,8 @@ class Linux_i686Manifest(LinuxManifest):
 class Linux_x86_64Manifest(LinuxManifest):
     def construct(self):
         super(Linux_x86_64Manifest, self).construct()
-        if self.buildtype()=='Release':
-            self.path("secondlife-stripped","bin/"+self.binary_name())
-            self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
-        else:
-            self.path("secondlife-bin","bin/"+self.binary_name())
-            self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
 
-        self.path("linux_tools/launch_url.sh","launch_url.sh")
-        if self.prefix("res-sdl"):
-            self.path("*")
-            # recurse
-            self.end_prefix("res-sdl")
-
- 	# plugins
-        if self.prefix(src="", dst="bin/llplugin"):
-            self.path("../llplugin/slplugin/SLPlugin", "SLPlugin")
-            self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
-            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_quicktime.so")
-            self.end_prefix("bin/llplugin")
-
-        self.path("featuretable_linux.txt")
+        # support file for valgrind debug tool
         self.path("secondlife-i686.supp")
 
 if __name__ == "__main__":
