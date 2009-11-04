@@ -49,6 +49,7 @@
 	#include "Movies.h"
 	#include "QDoffscreen.h"
 	#include "FixMath.h"
+	#include "QTLoadLibraryUtils.h"
 #endif
 
 // TODO: Make sure that the only symbol exported from this library is LLPluginInitEntryPoint
@@ -705,14 +706,21 @@ void MediaPluginQuickTime::receiveMessage(const char *message_string)
 				message.setValueLLSD("versions", versions);
 
 				#ifdef LL_WINDOWS
-				if ( InitializeQTML( 0L ) != noErr )
+
+				// QuickTime 7.6.4 has an issue (that was not present in 7.6.2) with initializing QuickTime
+				// according to this article: http://lists.apple.com/archives/QuickTime-API/2009/Sep/msg00097.html
+				// The solution presented there appears to work.
+				QTLoadLibrary("qtcf.dll");
+
+				// main initialization for QuickTime - only required on Windows
+				OSErr result = InitializeQTML( 0L );
+				if ( result != noErr )
 				{
 					//TODO: If no QT on Windows, this fails - respond accordingly.
-					//return false;
 				}
 				else
 				{
-//					std::cerr << "QuickTime initialized" << std::endl;
+					//std::cerr << "QuickTime initialized" << std::endl;
 				};
 				#endif
 
