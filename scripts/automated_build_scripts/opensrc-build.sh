@@ -257,10 +257,10 @@ esac
 
 get_asset "http://www.fmod.org/index.php/release/version/$fmod_tar"
 
-# Special case for Mac...
 case "$arch" in
 
 Darwin)
+  # Create fat binary on Mac...
   if lipo -create -output "../$fmod"/api/$fmod_lib/libfmod-universal.a\
      "../$fmod"/api/$fmod_lib/libfmod.a\
      "../$fmod"/api/$fmod_lib/libfmodx86.a
@@ -271,6 +271,11 @@ Darwin)
   else
     fail running lipo
   fi
+  ;;
+
+CYGWIN)
+  # install Quicktime.  This will fail outside of Linden's network
+  scripts/install.py quicktime
   ;;
 
 esac
