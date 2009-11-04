@@ -184,49 +184,49 @@
 		<!-- After "System Default" and "English", please keep the rest of these combo_items in alphabetical order by the first character in the string. -->
 		
 		<combo_item type="string" length="1" enabled="true" name="Danish" value="da">
-			Dansk (Danish) - Beta
+			Dansk (Danish)
 		</combo_item>
 		<combo_item type="string" length="1" enabled="true" name="Deutsch(German)" value="de">
-			Deutsch (German) - Beta
+			Deutsch (German)
 		</combo_item>
 		<combo_item type="string" length="1" enabled="true" name="Spanish" value="es">
-			Espaol (Spanish) - Beta
+			Español (Spanish)
 		</combo_item>
 		<combo_item type="string" length="1" enabled="true" name="French" value="fr">
-			Fran�ais (French) - Beta
+			Français (French)
 		</combo_item>
 		<combo_item type="string" length="1" enabled="true" name="Italian" value="it">
-			Italiano (Italian) - Beta
+			Italiano (Italian)
 		</combo_item>
 		<combo_item type="string" length="1" enabled="true" name="Hungarian" value="hu">
-			Magyar (Hungarian) - Beta
+			Magyar (Hungarian)
 		</combo_item>
 		<combo_item type="string" length="1" enabled="true" name="Dutch" value="nl">
-			Nederlands (Dutch) - Beta
+			Nederlands (Dutch)
 		</combo_item>
 		<combo_item type="string" length="1" enabled="true" name="Polish" value="pl">
-			Polski (Polish) - Beta
+			Polski (Polish)
 		</combo_item>
 		<combo_item type="string" length="1" enabled="true" name="Portugese" value="pt">
-			Portugu�s (Portuguese) - Beta
+			Portugués (Portuguese)
 		</combo_item>
  		<combo_item type="string" length="1" enabled="true" name="Russian" value="ru">
- 			??????? (Russian) - Beta
+ 			Русский (Russian)
  		</combo_item>
 		<combo_item type="string" length="1" enabled="true" name="Turkish" value="tr">
-			T�rk�e (Turkish) - Beta
+			Türkçe (Turkish)
 		</combo_item>
  		<combo_item type="string" length="1" enabled="true" name="Ukrainian" value="uk">
- 			?????????? (Ukrainian) - Beta
+ 			Українська (Ukrainian)
  		</combo_item>
 		<combo_item type="string" length="1" enabled="true" name="Chinese" value="zh">
-			?? (??) (Chinese) - Beta
+			中文 (简体) (Chinese)
 		</combo_item>
 		<combo_item type="string" length="1" enabled="true" name="(Japanese)" value="ja">
-			??? (Japanese) - Beta
+			日本語 (Japanese)
 		</combo_item>
 		<combo_item type="string" length="1" enabled="true" name="(Korean)" value="ko">
-			??? (Korean) - Beta
+			한국어 (Korean)
 		</combo_item>
 	</combo_box>
 </panel>
