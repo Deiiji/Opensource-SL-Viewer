@@ -46,9 +46,6 @@
 #include "llevent.h"		// LLSimpleListener
 #include "lluuid.h"
 
-#include <boost/bind.hpp>	// for SkinFolder listener
-#include <boost/signals2.hpp>
-
 // Move this to its own file.
 
 LLViewerMediaEventEmitter::~LLViewerMediaEventEmitter()
