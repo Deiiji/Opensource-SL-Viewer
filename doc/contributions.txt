@@ -118,6 +118,7 @@ Argent Stonecutter
 	VWR-68
 Armin Weatherwax
 	VWR-14847
+	SNOW-157
 Asuka Neely
 	VWR-3434
 	VWR-8179
@@ -628,6 +629,7 @@ Thickbrick Sleaford
 	SNOW-22
 	SNOW-100
 	SNOW-112
+	SNOW-157
 	SNOW-207
 	SNOW-239
 	SNOW-247

@@ -395,7 +395,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mBuffer(NULL),
 	  mBufferSize(0),
 	  mRequestedSize(0),
-	  mDesiredSize(TEXTURE_CACHE_ENTRY_SIZE),
+	  mDesiredSize(FIRST_PACKET_SIZE),
 	  mFileSize(0),
 	  mCachedSize(0),
 	  mLoaded(FALSE),
@@ -680,7 +680,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == CACHE_POST)
 	{
-		mDesiredSize = llmax(mDesiredSize, TEXTURE_CACHE_ENTRY_SIZE);
+		mDesiredSize = llmax(mDesiredSize, FIRST_PACKET_SIZE);
 		mCachedSize = mFormattedImage.notNull() ? mFormattedImage->getDataSize() : 0;
 		// Successfully loaded
 		if ((mCachedSize >= mDesiredSize) || mHaveAllData)
@@ -1421,7 +1421,7 @@ bool LLTextureFetch::createRequest(const std::string& url, const LLUUID& id, con
 	}
 	else
 	{
-		desired_size = TEXTURE_CACHE_ENTRY_SIZE;
+		desired_size = FIRST_PACKET_SIZE;
 		desired_discard = MAX_DISCARD_LEVEL;
 	}
 
