@@ -537,7 +537,7 @@ class DarwinManifest(ViewerManifest):
         # annotated backtraces (i.e. function names in the crash log).  'strip' with no
         # arguments yields a slightly smaller binary but makes crash logs mostly useless.
         # This may be desirable for the final release.  Or not.
-        if self.buildtype()=='Release':
+        if self.buildtype().lower()=='release':
             if ("package" in self.args['actions'] or 
                 "unpacked" in self.args['actions']):
                 self.run_command('strip -S "%(viewer_binary)s"' %
@@ -661,7 +661,7 @@ class LinuxManifest(ViewerManifest):
         # Create an appropriate gridargs.dat for this package, denoting required grid.
         self.put_in_file(self.flags_list(), 'gridargs.dat')
 
-        if self.buildtype()=='Release':
+        if self.buildtype().lower()=='release':
             self.path("secondlife-stripped","bin/"+self.binary_name())
             self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
         else:
