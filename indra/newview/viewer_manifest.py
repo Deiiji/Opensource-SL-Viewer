@@ -83,6 +83,9 @@ class ViewerManifest(LLManifest):
                         self.path("*.png")
                         self.path("textures.xml")
                         self.end_prefix("*/textures")
+                self.exclude("default/xui/en_us/mime_types_windows.xml")
+                self.exclude("default/xui/en_us/mime_types_mac.xml")
+                self.exclude("default/xui/en_us/mime_types_linux.xml")
                 self.path("*/xui/*/*.xml")
                 self.path("*/*.xml")
                 
@@ -233,6 +236,9 @@ class WindowsManifest(ViewerManifest):
             self.path("qsvg4.dll")
             self.path("qtiff4.dll")
             self.end_prefix()
+
+        # Per platform MIME config on the cheap.  See SNOW-307 / DEV-41388
+        self.path("skins/default/xui/en-us/mime_types_windows.xml", "skins/default/xui/en-us/mime_types.xml")
 
         # These need to be installed as a SxS assembly, currently a 'private' assembly.
         # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
@@ -517,6 +523,9 @@ class DarwinManifest(ViewerManifest):
 
                     self.end_prefix("llplugin")
 
+                # Per platform MIME config on the cheap.  See SNOW-307 / DEV-41388
+                self.path("skins/default/xui/en-us/mime_types_mac.xml", "skins/default/xui/en-us/mime_types.xml")
+
                 # command line arguments for connecting to the proper grid
                 self.put_in_file(self.flags_list(), 'arguments.txt')
 
@@ -669,8 +678,11 @@ class LinuxManifest(ViewerManifest):
         # plugins
         if self.prefix(src="", dst="bin/llplugin"):
             self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
-            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_quicktime.so")
+            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
             self.end_prefix("bin/llplugin")
+
+        # Per platform MIME config on the cheap.  See SNOW-307 / DEV-41388
+        self.path("skins/default/xui/en-us/mime_types_linux.xml", "skins/default/xui/en-us/mime_types.xml")
 
         self.path("featuretable_linux.txt")
 
