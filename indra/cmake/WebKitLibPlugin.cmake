@@ -34,30 +34,22 @@ elseif (DARWIN)
         debug ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib
         )
 elseif (LINUX)
-    set(WEBKIT_PLUGIN_LIBRARIES
-        llqtwebkit
-
-        qgif
-#        qico
-        qjpeg
-#        qpng
-#        qtiff
-#        qsvg
-
-#        QtSvg
-        QtWebKit
-        QtOpenGL
-        QtNetwork
-        QtGui
-        QtCore
-
-        fontconfig
-        X11
-        Xrender
-        GL
-
-#        sqlite3
-#        Xi
-#        SM
-        )
+    if (STANDALONE)
+       set(WEBKIT_PLUGIN_LIBRARIES llqtwebkit)
+    else (STANDALONE)
+       set(WEBKIT_PLUGIN_LIBRARIES
+           llqtwebkit
+           qgif
+           qjpeg
+           QtWebKit
+           QtOpenGL
+           QtNetwork
+           QtGui
+           QtCore
+           fontconfig
+           X11
+           Xrender
+           GL
+           )
+    endif (STANDALONE)
 endif (WINDOWS)
