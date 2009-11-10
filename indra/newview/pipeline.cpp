@@ -2732,7 +2732,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		else
 		{
 			// Make sure particle effects disappear
-			LLHUDObject::renderAll();
+			LLHUDObject::renderAllForTimer();
 		}
 	}
 
@@ -2961,7 +2961,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 	else
 	{
 		// Make sure particle effects disappear
-		LLHUDObject::renderAll();
+		LLHUDObject::renderAllForTimer();
 	}
 
 	if (occlude)
