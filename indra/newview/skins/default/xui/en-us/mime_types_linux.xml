@@ -213,6 +213,9 @@
 		<widgettype>
 			movie
 		</widgettype>
+		<impl>
+			media_plugin_gstreamer
+		</impl>
 	</mimetype>
 	<mimetype name="application/xhtml+xml">
 		<label name="application/xhtml+xml_label">
