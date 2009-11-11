@@ -64,13 +64,13 @@ bool LLMIMETypes::parseMIMETypes(const std::string& xml_filename)
 		success = LLUICtrlFactory::getLayeredXMLNode(settings_filename, root);
 
 		#if LL_WINDOWS
-		// On the windows dev builds, unpackaged, the mime_types.xml file will be located in 
+		// On the windows dev builds, unpackaged, the mime_types.xml file will be located in
 		// indra/build-vc**/newview/<config>/app_settings.
 		if (!success)
 		{
 			settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "app_settings", xml_filename);
 			success = LLUICtrlFactory::getLayeredXMLNode(settings_filename, root);
-		}	
+		}
 		#endif
 	}
 
