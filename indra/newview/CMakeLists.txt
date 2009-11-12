@@ -1492,8 +1492,12 @@ if (WINDOWS)
   set(mime_types_dest "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/app_settings")
   add_custom_command(
       TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-      COMMAND cp
-      ARGS --force ${mime_types_source}/mime_types_windows.xml ${mime_types_dest}/mime_types.xml
+      COMMAND ${CMAKE_COMMAND}
+      ARGS 
+	 -E
+	 copy_if_different
+	 ${mime_types_source}/mime_types_windows.xml 
+	 ${mime_types_dest}/mime_types.xml
       COMMENT "Copying mime_types_windows.xml to mime_types.xml."
       )
   
