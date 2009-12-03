@@ -26,8 +26,15 @@ THE SOFTWARE.
 $/LicenseInfo$
 """
 
-import md5, random, socket, string, time, re
+import random, socket, string, time, re
 import uuid
+
+# *HACK: Necessary for python 2.4. Consider replacing this code wart
+# after python >=2.5 has deployed everywhere. 2009-10-05
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
 
 def _int2binstr(i,l):
     s=''
@@ -196,7 +203,7 @@ class UUID(object):
         from c++ implementation for portability reasons.
         Returns self.
         """
-        m = md5.new()
+        m = md5()
         m.update(uuid.uuid1().bytes)
         self._bits = m.digest()
         return self
