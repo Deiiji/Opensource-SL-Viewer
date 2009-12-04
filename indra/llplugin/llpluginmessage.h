@@ -41,6 +41,7 @@ class LLPluginMessage
 	LOG_CLASS(LLPluginMessage);
 public:
 	LLPluginMessage();
+	LLPluginMessage(const LLPluginMessage &p);
 	LLPluginMessage(const std::string &message_class, const std::string &message_name);
 	~LLPluginMessage();
 	
@@ -58,6 +59,7 @@ public:
 	void setValueU32(const std::string &key, U32 value);
 	void setValueBoolean(const std::string &key, bool value);
 	void setValueReal(const std::string &key, F64 value);
+	void setValuePointer(const std::string &key, void *value);
 	
 	std::string getClass(void) const;
 	std::string getName(void) const;
@@ -82,6 +84,9 @@ public:
 
 	// get the value of a key as a float.
 	F64 getValueReal(const std::string &key) const;
+
+	// get the value of a key as a pointer.
+	void* getValuePointer(const std::string &key) const;
 
 	// Flatten the message into a string
 	std::string generate(void) const;

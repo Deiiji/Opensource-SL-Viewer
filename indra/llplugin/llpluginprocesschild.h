@@ -103,6 +103,7 @@ private:
 	
 	LLTimer mHeartbeat;
 	F64		mSleepTime;
+	F64		mCPUElapsed;
 	
 };
 

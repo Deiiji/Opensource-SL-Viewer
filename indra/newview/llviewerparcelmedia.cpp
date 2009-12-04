@@ -87,7 +87,7 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			{
 				sMediaRegionID = LLUUID() ;
 				stop() ;
-				LL_INFOS("Media") << "no agent region, bailing out." << LL_ENDL;
+				LL_DEBUGS("Media") << "no agent region, bailing out." << LL_ENDL;
 				return ;				
 			}
 
@@ -98,7 +98,7 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			LLUUID regionid = gAgent.getRegion()->getRegionID();
 			if (parcelid != sMediaParcelLocalID || regionid != sMediaRegionID)
 			{
-				LL_INFOS("Media") << "New parcel, parcel id = " << parcelid << ", region id = " << regionid << LL_ENDL;
+				LL_DEBUGS("Media") << "New parcel, parcel id = " << parcelid << ", region id = " << regionid << LL_ENDL;
 				sMediaParcelLocalID = parcelid;
 				sMediaRegionID = regionid;
 				new_parcel = true;
@@ -200,7 +200,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 			&& sMediaImpl->getMimeType() == mime_type
 			&& sMediaImpl->getMediaTextureID() == placeholder_texture_id)
 		{
-			LL_INFOS("Media") << "playing with existing url " << media_url << LL_ENDL;
+			LL_DEBUGS("Media") << "playing with existing url " << media_url << LL_ENDL;
 
 			sMediaImpl->play();
 		}
@@ -214,7 +214,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 		else
 		{
 			// Since the texture id is different, we need to generate a new impl
-			LL_INFOS("Media") << "new media impl with mime type " << mime_type << ", url " << media_url << LL_ENDL;
+			LL_DEBUGS("Media") << "new media impl with mime type " << mime_type << ", url " << media_url << LL_ENDL;
 
 			// Delete the old one first so they don't fight over the texture.
 			sMediaImpl->stop();
@@ -467,73 +467,85 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	{
 		case MEDIA_EVENT_CONTENT_UPDATED:
 		{
-			// LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_CONTENT_UPDATED " << LL_ENDL;
+			// LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CONTENT_UPDATED " << LL_ENDL;
 		};
 		break;
 		
 		case MEDIA_EVENT_TIME_DURATION_UPDATED:
 		{
-			// LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_TIME_DURATION_UPDATED, time is " << self->getCurrentTime() << " of " << self->getDuration() << LL_ENDL;
+			// LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_TIME_DURATION_UPDATED, time is " << self->getCurrentTime() << " of " << self->getDuration() << LL_ENDL;
 		};
 		break;
 		
 		case MEDIA_EVENT_SIZE_CHANGED:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_SIZE_CHANGED " << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_SIZE_CHANGED " << LL_ENDL;
 		};
 		break;
 		
 		case MEDIA_EVENT_CURSOR_CHANGED:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_CURSOR_CHANGED, new cursor is " << self->getCursorName() << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CURSOR_CHANGED, new cursor is " << self->getCursorName() << LL_ENDL;
 		};
 		break;
 		
 		case MEDIA_EVENT_NAVIGATE_BEGIN:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_BEGIN " << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_BEGIN " << LL_ENDL;
 		};
 		break;
 		
 		case MEDIA_EVENT_NAVIGATE_COMPLETE:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_COMPLETE, result string is: " << self->getNavigateResultString() << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_COMPLETE, result string is: " << self->getNavigateResultString() << LL_ENDL;
 		};
 		break;
 
 		case MEDIA_EVENT_PROGRESS_UPDATED:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_PROGRESS_UPDATED, loading at " << self->getProgressPercent() << "%" << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PROGRESS_UPDATED, loading at " << self->getProgressPercent() << "%" << LL_ENDL;
 		};
 		break;
 
 		case MEDIA_EVENT_STATUS_TEXT_CHANGED:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << self->getStatusText() << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << self->getStatusText() << LL_ENDL;
 		};
 		break;
 
 		case MEDIA_EVENT_LOCATION_CHANGED:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << self->getLocation() << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << self->getLocation() << LL_ENDL;
 		};
 		break;
 
 		case MEDIA_EVENT_CLICK_LINK_HREF:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << self->getClickTarget() << "\", uri is " << self->getClickURL() << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << self->getClickTarget() << "\", uri is " << self->getClickURL() << LL_ENDL;
 		};
 		break;
 		
 		case MEDIA_EVENT_CLICK_LINK_NOFOLLOW:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << self->getClickURL() << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << self->getClickURL() << LL_ENDL;
 		};
 		break;
 
 		case MEDIA_EVENT_PLUGIN_FAILED:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED" << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED" << LL_ENDL;
+		};
+		break;
+		
+		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED_LAUNCH" << LL_ENDL;
+		};
+		break;
+		
+		case MEDIA_EVENT_NAME_CHANGED:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAME_CHANGED" << LL_ENDL;
 		};
 		break;
 	};

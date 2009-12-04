@@ -62,14 +62,14 @@ LLPluginClassMedia::~LLPluginClassMedia()
 	reset();
 }
 
-bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::string &plugin_filename)
+bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug)
 {	
 	LL_DEBUGS("Plugin") << "launcher: " << launcher_filename << LL_ENDL;
 	LL_DEBUGS("Plugin") << "plugin: " << plugin_filename << LL_ENDL;
 	
 	mPlugin = new LLPluginProcessParent(this);
 	mPlugin->setSleepTime(mSleepTime);
-	mPlugin->init(launcher_filename, plugin_filename);
+	mPlugin->init(launcher_filename, plugin_filename, debug);
 
 	return true;
 }
@@ -100,6 +100,8 @@ void LLPluginClassMedia::reset()
 	mSetMediaHeight = -1;
 	mRequestedMediaWidth = 0;
 	mRequestedMediaHeight = 0;
+	mFullMediaWidth = 0;
+	mFullMediaHeight = 0;
 	mTextureWidth = 0;
 	mTextureHeight = 0;
 	mMediaWidth = 0;
@@ -111,6 +113,8 @@ void LLPluginClassMedia::reset()
 	mLowPrioritySizeLimit = LOW_PRIORITY_TEXTURE_SIZE_DEFAULT;
 	mAllowDownsample = false;
 	mPadding = 0;
+	mLastMouseX = 0;
+	mLastMouseY = 0;
 	mStatus = LLPluginClassMediaOwner::MEDIA_NONE;
 	mSleepTime = 1.0f / 100.0f;
 	mCanCut = false;
@@ -132,6 +136,7 @@ void LLPluginClassMedia::reset()
 	mCurrentTime = 0.0f;
 	mDuration = 0.0f;
 	mCurrentRate = 0.0f;
+	mLoadedDuration = 0.0f;
 }
 
 void LLPluginClassMedia::idle(void)
@@ -267,8 +272,16 @@ unsigned char* LLPluginClassMedia::getBitsData()
 
 void LLPluginClassMedia::setSize(int width, int height)
 {
-	mSetMediaWidth = width;
-	mSetMediaHeight = height;
+	if((width > 0) && (height > 0))
+	{
+		mSetMediaWidth = width;
+		mSetMediaHeight = height;
+	}
+	else
+	{
+		mSetMediaWidth = -1;
+		mSetMediaHeight = -1;
+	}
 
 	setSizeInternal();
 }
@@ -280,16 +293,26 @@ void LLPluginClassMedia::setSizeInternal(void)
 		mRequestedMediaWidth = mSetMediaWidth;
 		mRequestedMediaHeight = mSetMediaHeight;
 	}
+	else if((mNaturalMediaWidth > 0) && (mNaturalMediaHeight > 0))
+	{
+		mRequestedMediaWidth = mNaturalMediaWidth;
+		mRequestedMediaHeight = mNaturalMediaHeight;
+	}
 	else
 	{
 		mRequestedMediaWidth = mDefaultMediaWidth;
 		mRequestedMediaHeight = mDefaultMediaHeight;
 	}
 	
+	// Save these for size/interest calculations
+	mFullMediaWidth = mRequestedMediaWidth;
+	mFullMediaHeight = mRequestedMediaHeight;
+	
 	if(mAllowDownsample)
 	{
 		switch(mPriority)
 		{
+			case PRIORITY_SLIDESHOW:
 			case PRIORITY_LOW:
 				// Reduce maximum texture dimension to (or below) mLowPrioritySizeLimit
 				while((mRequestedMediaWidth > mLowPrioritySizeLimit) || (mRequestedMediaHeight > mLowPrioritySizeLimit))
@@ -310,6 +333,12 @@ void LLPluginClassMedia::setSizeInternal(void)
 		mRequestedMediaWidth = nextPowerOf2(mRequestedMediaWidth);
 		mRequestedMediaHeight = nextPowerOf2(mRequestedMediaHeight);
 	}
+	
+	if(mRequestedMediaWidth > 2048)
+		mRequestedMediaWidth = 2048;
+
+	if(mRequestedMediaHeight > 2048)
+		mRequestedMediaHeight = 2048;
 }
 
 void LLPluginClassMedia::setAutoScale(bool auto_scale)
@@ -386,8 +415,20 @@ std::string LLPluginClassMedia::translateModifiers(MASK modifiers)
 	return result;
 }
 
-void LLPluginClassMedia::mouseEvent(EMouseEventType type, int x, int y, MASK modifiers)
+void LLPluginClassMedia::mouseEvent(EMouseEventType type, int button, int x, int y, MASK modifiers)
 {
+	if(type == MOUSE_EVENT_MOVE)
+	{
+		if((x == mLastMouseX) && (y == mLastMouseY))
+		{
+			// Don't spam unnecessary mouse move events.
+			return;
+		}
+		
+		mLastMouseX = x;
+		mLastMouseY = y;
+	}
+	
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "mouse_event");
 	std::string temp;
 	switch(type)
@@ -398,6 +439,8 @@ void LLPluginClassMedia::mouseEvent(EMouseEventType type, int x, int y, MASK mod
 		case MOUSE_EVENT_DOUBLE_CLICK:	temp = "double_click";	break;
 	}
 	message.setValue("event", temp);
+
+	message.setValueS32("button", button);
 
 	message.setValueS32("x", x);
 	
@@ -489,11 +532,12 @@ void LLPluginClassMedia::scrollEvent(int x, int y, MASK modifiers)
 	sendMessage(message);
 }
 	
-bool LLPluginClassMedia::textInput(const std::string &text)
+bool LLPluginClassMedia::textInput(const std::string &text, MASK modifiers)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "text_event");
 
 	message.setValue("text", text);
+	message.setValue("modifiers", translateModifiers(modifiers));
 	
 	sendMessage(message);
 	
@@ -509,6 +553,23 @@ void LLPluginClassMedia::loadURI(const std::string &uri)
 	sendMessage(message);
 }
 
+const char* LLPluginClassMedia::priorityToString(EPriority priority)
+{
+	const char* result = "UNKNOWN";
+	switch(priority)
+	{
+		case PRIORITY_UNLOADED:		result = "unloaded";	break;
+		case PRIORITY_STOPPED:		result = "stopped";		break;
+		case PRIORITY_HIDDEN:		result = "hidden";		break;
+		case PRIORITY_SLIDESHOW:	result = "slideshow";	break;
+		case PRIORITY_LOW:			result = "low";			break;
+		case PRIORITY_NORMAL:		result = "normal";		break;
+		case PRIORITY_HIGH:			result = "high";		break;
+	}
+	
+	return result;
+}
+
 void LLPluginClassMedia::setPriority(EPriority priority)
 {
 	if(mPriority != priority)
@@ -517,27 +578,28 @@ void LLPluginClassMedia::setPriority(EPriority priority)
 
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "set_priority");
 		
-		std::string priority_string;
+		std::string priority_string = priorityToString(priority);
 		switch(priority)
 		{
+			case PRIORITY_UNLOADED:	
+				mSleepTime = 1.0f;
+			break;
 			case PRIORITY_STOPPED:	
-				priority_string = "stopped";	
 				mSleepTime = 1.0f;
 			break;
 			case PRIORITY_HIDDEN:	
-				priority_string = "hidden";	
+				mSleepTime = 1.0f;
+			break;
+			case PRIORITY_SLIDESHOW:
 				mSleepTime = 1.0f;
 			break;
 			case PRIORITY_LOW:		
-				priority_string = "low";		
-				mSleepTime = 1.0f / 50.0f;
+				mSleepTime = 1.0f / 25.0f;
 			break;
 			case PRIORITY_NORMAL:	
-				priority_string = "normal";	
-				mSleepTime = 1.0f / 100.0f;
+				mSleepTime = 1.0f / 50.0f;
 			break;
 			case PRIORITY_HIGH:		
-				priority_string = "high";		
 				mSleepTime = 1.0f / 100.0f;
 			break;
 		}
@@ -551,6 +613,8 @@ void LLPluginClassMedia::setPriority(EPriority priority)
 			mPlugin->setSleepTime(mSleepTime);
 		}
 		
+		LL_DEBUGS("PluginPriority") << this << ": setting priority to " << priority_string << LL_ENDL;
+		
 		// This may affect the calculated size, so recalculate it here.
 		setSizeInternal();
 	}
@@ -558,15 +622,27 @@ void LLPluginClassMedia::setPriority(EPriority priority)
 
 void LLPluginClassMedia::setLowPrioritySizeLimit(int size)
 {
-	if(mLowPrioritySizeLimit != size)
+	int power = nextPowerOf2(size);
+	if(mLowPrioritySizeLimit != power)
 	{
-		mLowPrioritySizeLimit = size;
+		mLowPrioritySizeLimit = power;
 
 		// This may affect the calculated size, so recalculate it here.
 		setSizeInternal();
 	}
 }
 
+F64 LLPluginClassMedia::getCPUUsage()
+{
+	F64 result = 0.0f;
+	
+	if(mPlugin)
+	{
+		result = mPlugin->getCPUUsage();
+	}
+	
+	return result;
+}
 
 void LLPluginClassMedia::cut()
 {
@@ -658,6 +734,7 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			
 
 			bool time_duration_updated = false;
+			int previous_percent = mProgressPercent;
 
 			if(message.hasValue("current_time"))
 			{
@@ -675,11 +752,32 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 				mCurrentRate = message.getValueReal("current_rate");
 			}
 			
+			if(message.hasValue("loaded_duration"))
+			{
+				mLoadedDuration = message.getValueReal("loaded_duration");
+				time_duration_updated = true;
+			}
+			else
+			{
+				// If the message doesn't contain a loaded_duration param, assume it's equal to duration
+				mLoadedDuration = mDuration;
+			}
+			
+			// Calculate a percentage based on the loaded duration and total duration.
+			if(mDuration != 0.0f)	// Don't divide by zero.
+			{
+				mProgressPercent = (int)((mLoadedDuration * 100.0f)/mDuration);
+			}
+
 			if(time_duration_updated)
 			{
 				mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_TIME_DURATION_UPDATED);
 			}
 			
+			if(previous_percent != mProgressPercent)
+			{
+				mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_PROGRESS_UPDATED);
+			}
 		}
 		else if(message_name == "media_status")
 		{
@@ -707,6 +805,10 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			{
 				mStatus = LLPluginClassMediaOwner::MEDIA_PAUSED;
 			}
+			else if(status == "done")
+			{
+				mStatus = LLPluginClassMediaOwner::MEDIA_DONE;
+			}
 			else
 			{
 				// empty string or any unknown string
@@ -723,7 +825,7 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			mNaturalMediaWidth = width;
 			mNaturalMediaHeight = height;
 			
-			setSize(width, height);
+			setSizeInternal();
 		}
 		else if(message_name == "size_change_response")
 		{
@@ -764,6 +866,11 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			{
 				mCanPaste = message.getValueBoolean("paste");
 			}
+		}
+		else if(message_name == "name_text")
+		{
+			mMediaName = message.getValue("name");
+			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_NAME_CHANGED);
 		}
 		else
 		{
@@ -834,6 +941,12 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 		}
 	}
 
+}
+
+/* virtual */ 
+void LLPluginClassMedia::pluginLaunchFailed()
+{
+	mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_PLUGIN_FAILED_LAUNCH);
 }
 
 /* virtual */ 
@@ -1029,6 +1142,11 @@ void LLPluginClassMedia::setVolume(float volume)
 		
 		sendMessage(message);
 	}
+}
+
+float LLPluginClassMedia::getVolume()
+{
+	return mRequestedVolume;
 }
 
 void LLPluginClassMedia::initializeUrlHistory(const LLSD& url_history)

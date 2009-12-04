@@ -45,6 +45,12 @@
 
 #include "llevent.h"		// LLSimpleListener
 #include "lluuid.h"
+#include "llkeyboard.h"
+
+
+// Merov: Temporary definitions while porting the new viewer media code to Snowglobe
+const int LEFT_BUTTON  = 0;
+const int RIGHT_BUTTON = 1;
 
 // Move this to its own file.
 
@@ -624,7 +630,7 @@ void LLViewerMediaImpl::mouseDown(S32 x, S32 y)
 	mLastMouseY = y;
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOWN, x, y, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOWN, LEFT_BUTTON, x, y, 0);
 	}
 }
 
@@ -636,7 +642,7 @@ void LLViewerMediaImpl::mouseUp(S32 x, S32 y)
 	mLastMouseY = y;
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, x, y, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, LEFT_BUTTON, x, y, 0);
 	}
 }
 
@@ -648,7 +654,7 @@ void LLViewerMediaImpl::mouseMove(S32 x, S32 y)
 	mLastMouseY = y;
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_MOVE, x, y, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_MOVE, LEFT_BUTTON, x, y, 0);
 	}
 }
 
@@ -660,7 +666,7 @@ void LLViewerMediaImpl::mouseLeftDoubleClick(S32 x, S32 y)
 	mLastMouseY = y;
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOUBLE_CLICK, x, y, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOUBLE_CLICK, LEFT_BUTTON, x, y, 0);
 	}
 }
 
@@ -669,7 +675,7 @@ void LLViewerMediaImpl::onMouseCaptureLost()
 {
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, mLastMouseX, mLastMouseY, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, LEFT_BUTTON, mLastMouseX, mLastMouseY, 0);
 	}
 }
 
@@ -774,7 +780,12 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 	
 	if (mMediaSource)
 	{
-		mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)));
+		// only accept 'printable' characters, sigh...
+		if (uni_char >= 32 // discard 'control' characters
+			&& uni_char != 127) // SDL thinks this is 'delete' - yuck.
+		{
+			mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(FALSE));
+		}
 	}
 	
 	return result;

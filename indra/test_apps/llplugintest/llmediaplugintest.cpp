@@ -1,29 +1,28 @@
 /**
- * @file LLMediaPluginTest2.cpp
+ * @file LLMediaPluginTest.cpp
  * @brief Primary test application for LLMedia (Separate Process) Plugin system
  *
  * $LicenseInfo:firstyear=2008&license=viewergpl$
- * 
- * Copyright (c) 2008-2009, Linden Research, Inc.
- * 
+ *
+ * Copyright (c) 2009, Linden Research, Inc.
+ *
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
  * to you under the terms of the GNU General Public License, version 2.0
  * ("GPL"), unless you have obtained a separate licensing agreement
  * ("Other License"), formally executed by you and Linden Lab.  Terms of
  * the GPL can be found in doc/GPL-license.txt in this distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
- * 
+ * online at http://secondlife.com/developers/opensource/gplv2
+ *
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at
- * http://secondlifegrid.net/programs/open_source/licensing/flossexception
- * 
+ * online at http://secondlife.com/developers/opensource/flossexception
+ *
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
  * and agree to abide by those obligations.
- * 
+ *
  * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
@@ -45,6 +44,7 @@
 
 #if __APPLE__
 	#include <GLUT/glut.h>
+	#include <CoreFoundation/CoreFoundation.h>
 #else
 	#define FREEGLUT_STATIC
 	#include "GL/freeglut.h"
@@ -197,7 +197,7 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	{
 		LLError::initForApplication(".");
 		LLError::setDefaultLevel(LLError::LEVEL_INFO);
-//		LLError::setTagLevel("Plugin", LLError::LEVEL_DEBUG);
+		//LLError::setTagLevel("Plugin", LLError::LEVEL_DEBUG);
 	}
 
 	// lots of randomness in this app
@@ -223,14 +223,12 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	resetView();
 
 	// initial media panel
-	//const int num_initial_panels = 4;
-	//for( int i = 0; i < num_initial_panels; ++i )
-	//{
-	//	addMediaPanel( mBookmarks[ rand() % ( mBookmarks.size() - 1 ) + 1 ].second );
-	//};
-
-	// always add a Web panel for testing
-	addMediaPanel( "http://www.google.com" );
+	const int num_initial_panels = 1;
+	for( int i = 0; i < num_initial_panels; ++i )
+	{
+		//addMediaPanel( mBookmarks[ rand() % ( mBookmarks.size() - 1 ) + 1 ].second );
+		addMediaPanel( mHomeWebUrl );
+	};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -275,8 +273,6 @@ void LLMediaPluginTest::reshape( int width, int height )
 void LLMediaPluginTest::bindTexture(GLuint texture, GLint row_length, GLint alignment)
 {
 	glEnable( GL_TEXTURE_2D );
-	
-//	std::cerr << "binding texture " << texture << std::endl;
 	
 	glBindTexture( GL_TEXTURE_2D, texture );
 	glPixelStorei( GL_UNPACK_ROW_LENGTH, row_length );
@@ -409,7 +405,7 @@ void LLMediaPluginTest::draw( int draw_type )
 			// only bother with pick if we have something to render
 			// Actually, we need to pick even if we're not ready to render.  
 			// Otherwise you can't select and remove a panel which has gone bad.
-//			if ( mMediaPanels[ panel ]->mReadyToRender )
+			//if ( mMediaPanels[ panel ]->mReadyToRender )
 			{
 				glMatrixMode( GL_TEXTURE );
 				glPushMatrix();
@@ -620,10 +616,10 @@ void LLMediaPluginTest::idle()
 	if ( mSelectedPanel )
 	{
 		// set volume based on slider if we have time media
-//		if ( mGluiMediaTimeControlWindowFlag )
-//		{
-//			mSelectedPanel->mMediaSource->setVolume( (float)mMediaTimeControlVolume / 100.0f );
-//		};
+		//if ( mGluiMediaTimeControlWindowFlag )
+		//{
+		//	mSelectedPanel->mMediaSource->setVolume( (float)mMediaTimeControlVolume / 100.0f );
+		//};
 
 		// NOTE: it is absurd that we need cache the state of GLUI controls
 		//       but enabling/disabling controls drags framerate from 500+
@@ -1189,7 +1185,7 @@ void LLMediaPluginTest::mouseButton( int button, int state, int x, int y )
 			windowPosToTexturePos( x, y, media_x, media_y, id );
 
 			if ( mSelectedPanel )
-				mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_DOWN, media_x, media_y, 0 );
+				mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_DOWN, 0, media_x, media_y, 0 );
 		}
 		else
 		if ( state == GLUT_UP )
@@ -1205,7 +1201,7 @@ void LLMediaPluginTest::mouseButton( int button, int state, int x, int y )
 				selectPanelById( id );
 
 				if ( mSelectedPanel )
-					mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_UP, media_x, media_y, 0 );
+					mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_UP, 0, media_x, media_y, 0 );
 			};
 		};
 	};
@@ -1219,7 +1215,7 @@ void LLMediaPluginTest::mousePassive( int x, int y )
 	windowPosToTexturePos( x, y, media_x, media_y, id );
 
 	if ( mSelectedPanel )
-		mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_MOVE, media_x, media_y, 0 );
+		mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_MOVE, 0, media_x, media_y, 0 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1230,7 +1226,7 @@ void LLMediaPluginTest::mouseMove( int x, int y )
 	windowPosToTexturePos( x, y, media_x, media_y, id );
 
 	if ( mSelectedPanel )
-		mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_MOVE, media_x, media_y, 0 );
+		mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_MOVE, 0, media_x, media_y, 0 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1462,6 +1458,12 @@ std::string LLMediaPluginTest::mimeTypeFromUrl( std::string& url )
 	else
 	if ( url.find( ".txt" ) != std::string::npos )	// Apple Text descriptors
 		mime_type = "video/quicktime";
+	else
+	if ( url.find( ".mp3" ) != std::string::npos )	// Apple Text descriptors
+		mime_type = "video/quicktime";
+	else
+	if ( url.find( "example://" ) != std::string::npos )	// Example plugin
+		mime_type = "example/example";
 
 	return mime_type;
 }
@@ -1486,6 +1488,9 @@ std::string LLMediaPluginTest::pluginNameFromMimeType( std::string& mime_type )
 	else
 	if ( mime_type == "text/html" )
 		plugin_name = "media_plugin_webkit.dll";
+	else
+	if ( mime_type == "example/example" )
+		plugin_name = "media_plugin_example.dll";
 
 #elif LL_LINUX
 	std::string plugin_name( "libmedia_plugin_null.so" );
@@ -1798,7 +1803,7 @@ void LLMediaPluginTest::getRandomMediaSize( int& width, int& height, std::string
 
 	// adjust this random size if it's a browser so we get 
 	// a more useful size for testing.. 
-	if ( mime_type == "text/html" )
+	if ( mime_type == "text/html" || mime_type == "example/example"  )
 	{
 		width = ( ( rand() % 100 ) + 100 ) * 4;
 		height = ( width * ( ( rand() % 400 ) + 1000 ) ) / 1000;
@@ -2009,6 +2014,11 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 			std::cerr <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << self->getStatusText() << std::endl;
 		break;
 
+		case MEDIA_EVENT_NAME_CHANGED:
+			std::cerr <<  "Media event:  MEDIA_EVENT_NAME_CHANGED, new name is: " << self->getMediaName() << std::endl;
+			glutSetWindowTitle( self->getMediaName().c_str() );
+		break;
+
 		case MEDIA_EVENT_LOCATION_CHANGED:
 		{
 			std::cerr <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << self->getLocation() << std::endl;
@@ -2034,6 +2044,10 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 		
 		case MEDIA_EVENT_PLUGIN_FAILED:
 			std::cerr <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED" << std::endl;
+		break;
+
+		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
+			std::cerr <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED_LAUNCH" << std::endl;
 		break;
 	}
 }
@@ -2109,18 +2123,37 @@ void glutMouseButton( int button, int state, int x, int y )
 //
 int main( int argc, char* argv[] )
 {
+#if LL_DARWIN
+	// Set the current working directory to <application bundle>/Contents/Resources/
+	CFURLRef resources_url = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
+	if(resources_url != NULL)
+	{
+		CFStringRef resources_string = CFURLCopyFileSystemPath(resources_url, kCFURLPOSIXPathStyle);
+		CFRelease(resources_url);
+		if(resources_string != NULL)
+		{
+			char buffer[PATH_MAX] = "";
+			if(CFStringGetCString(resources_string, buffer, sizeof(buffer), kCFStringEncodingUTF8))
+			{
+				chdir(buffer);
+			}
+			CFRelease(resources_string);
+		}
+	}
+#endif
+
 	glutInit( &argc, argv );
 	glutInitDisplayMode( GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGB );
 
 	const int app_window_x = 80;
 	const int app_window_y = 0;
-	const int app_window_width = 964;
-	const int app_window_height = 964;
+	const int app_window_width = 960;
+	const int app_window_height = 960;
 
 	glutInitWindowPosition( app_window_x, app_window_y );
 	glutInitWindowSize( app_window_width, app_window_height );
 
-	int app_window_handle = glutCreateWindow( "LLMediaPluginTest2" );
+	int app_window_handle = glutCreateWindow( "LLMediaPluginTest" );
 
 	glutDisplayFunc( glutDisplay );
 

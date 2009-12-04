@@ -28,7 +28,7 @@ include_directories(
 
 if (DARWIN)
     include(CMakeFindFrameworks)
-    find_library(CARBON_LIBRARY Carbon)
+    find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 endif (DARWIN)
 
 ### demo_plugin
@@ -280,11 +280,19 @@ target_link_libraries(llmediaplugintest
   ${PLUGIN_API_WINDOWS_LIBRARIES}
 )
 
+if (DARWIN)
+  # The testbed needs to use a couple of CoreFoundation calls now, to deal with being a bundled app.
+  target_link_libraries(llmediaplugintest
+    ${COREFOUNDATION_LIBRARY}
+  )
+endif (DARWIN)
+
 add_dependencies(llmediaplugintest
   copy_win_libs
   SLPlugin
   media_plugin_quicktime
   media_plugin_webkit
+  media_plugin_example
   ${LLPLUGIN_LIBRARIES}
   ${LLMESSAGE_LIBRARIES}
   ${LLCOMMON_LIBRARIES}
@@ -300,23 +308,51 @@ endif (DARWIN OR LINUX)
 
 # Gather build products of the various dependencies into the build directory for the testbed.
 
+if (DARWIN)
+  # path inside the app bundle where we'll need to copy plugins and other related files
+  set(PLUGINS_DESTINATION_DIR
+    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llmediaplugintest.app/Contents/Resources
+  )
+  
+  # create the Contents/Resources directory
+  add_custom_command(
+    TARGET llmediaplugintest POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS
+      -E
+      make_directory
+      ${PLUGINS_DESTINATION_DIR}
+    COMMENT "Creating Resources directory in app bundle."
+  ) 
+else (DARWIN)
+  set(PLUGINS_DESTINATION_DIR
+    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+  )
+endif (DARWIN)
+
 get_target_property(BUILT_SLPLUGIN SLPlugin LOCATION)
 add_custom_command(TARGET llmediaplugintest POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_SLPLUGIN}  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+  COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_SLPLUGIN}  ${PLUGINS_DESTINATION_DIR}
   DEPENDS ${BUILT_SLPLUGIN}
 )
 
 if (DARWIN OR WINDOWS)
   get_target_property(BUILT_WEBKIT_PLUGIN media_plugin_webkit LOCATION)
   add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_WEBKIT_PLUGIN}  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_WEBKIT_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
     DEPENDS ${BUILT_WEBKIT_PLUGIN}
   )
 
   get_target_property(BUILT_QUICKTIME_PLUGIN media_plugin_quicktime LOCATION)
   add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_QUICKTIME_PLUGIN}  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_QUICKTIME_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
     DEPENDS ${BUILT_QUICKTIME_PLUGIN}
+  )
+  
+  get_target_property(BUILT_EXAMPLE_PLUGIN media_plugin_example LOCATION)
+  add_custom_command(TARGET llmediaplugintest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_EXAMPLE_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
+    DEPENDS ${BUILT_EXAMPLE_PLUGIN}
   )
   
   # copy over bookmarks file if llmediaplugintest gets built
@@ -325,16 +361,16 @@ if (DARWIN OR WINDOWS)
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${CMAKE_CURRENT_BINARY_DIR}/
     DEPENDS ${BUILT_LLMEDIAPLUGINTEST}
   )
-  # also copy it to the build configuration directory, which is what the mac wants...
+  # also copy it to the same place as SLPlugin, which is what the mac wants...
   add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${PLUGINS_DESTINATION_DIR}
     DEPENDS ${BUILT_LLMEDIAPLUGINTEST}
   )
 endif (DARWIN OR WINDOWS)
 
 if (DARWIN)
   add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib ${PLUGINS_DESTINATION_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib
   )
 endif (DARWIN)

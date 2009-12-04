@@ -46,6 +46,7 @@ public:
 	virtual ~LLPluginProcessParentOwner();
 	virtual void receivePluginMessage(const LLPluginMessage &message) = 0;
 	// This will only be called when the plugin has died unexpectedly 
+	virtual void pluginLaunchFailed() {};
 	virtual void pluginDied() {};
 };
 
@@ -56,7 +57,7 @@ public:
 	LLPluginProcessParent(LLPluginProcessParentOwner *owner);
 	~LLPluginProcessParent();
 		
-	void init(const std::string &launcher_filename, const std::string &plugin_filename);
+	void init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug = false);
 	void idle(void);
 	
 	// returns true if the plugin is on its way to steady state
@@ -69,6 +70,9 @@ public:
 	bool isDone(void);	
 	
 	void killSockets(void);
+	
+	// Go to the proper error state
+	void errorState(void);
 
 	void setSleepTime(F64 sleep_time, bool force_send = false);
 	F64 getSleepTime(void) const { return mSleepTime; };
@@ -97,6 +101,8 @@ public:
 	bool getDisableTimeout() { return mDisableTimeout; };
 	void setDisableTimeout(bool disable) { mDisableTimeout = disable; };
 
+	F64 getCPUUsage() { return mCPUUsage; };
+
 private:
 
 	enum EState
@@ -109,6 +115,7 @@ private:
 		STATE_HELLO,			// first message from the plugin process has been received
 		STATE_LOADING,			// process has been asked to load the plugin
 		STATE_RUNNING,			// 
+		STATE_LAUNCH_FAILURE,	// Failure before plugin loaded
 		STATE_ERROR,			// generic bailout state
 		STATE_CLEANUP,			// clean everything up
 		STATE_EXITING,			// Tried to kill process, waiting for it to exit
@@ -141,8 +148,12 @@ private:
 	
 	LLTimer mHeartbeat;
 	F64		mSleepTime;
+	F64		mCPUUsage;
 	
 	bool mDisableTimeout;
+	bool mDebug;
+
+	LLProcessLauncher mDebugger;
 };
 
 #endif // LL_LLPLUGINPROCESSPARENT_H

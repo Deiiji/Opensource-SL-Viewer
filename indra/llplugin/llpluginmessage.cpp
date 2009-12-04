@@ -34,9 +34,15 @@
 
 #include "llpluginmessage.h"
 #include "llsdserialize.h"
+#include "u64.h"
 
 LLPluginMessage::LLPluginMessage()
 {
+}
+
+LLPluginMessage::LLPluginMessage(const LLPluginMessage &p)
+{
+	mMessage = p.mMessage;
 }
 
 LLPluginMessage::LLPluginMessage(const std::string &message_class, const std::string &message_name)
@@ -92,6 +98,14 @@ void LLPluginMessage::setValueBoolean(const std::string &key, bool value)
 void LLPluginMessage::setValueReal(const std::string &key, F64 value)
 {
 	mMessage["params"][key] = value;
+}
+
+void LLPluginMessage::setValuePointer(const std::string &key, void* value)
+{
+	std::stringstream temp;
+	// iostreams should output pointer values in hex with an initial 0x by default.
+	temp << value;
+	setValue(key, temp.str());
 }
 
 std::string LLPluginMessage::getClass(void) const
@@ -185,6 +199,20 @@ F64 LLPluginMessage::getValueReal(const std::string &key) const
 	if(mMessage["params"].has(key))
 	{
 		result = mMessage["params"][key].asReal();
+	}
+	
+	return result;
+}
+
+void* LLPluginMessage::getValuePointer(const std::string &key) const
+{
+	void* result = NULL;
+
+	if(mMessage["params"].has(key))
+	{
+		std::string value = mMessage["params"][key].asString();
+		
+		result = (void*)llstrtou64(value.c_str(), NULL, 16);
 	}
 	
 	return result;

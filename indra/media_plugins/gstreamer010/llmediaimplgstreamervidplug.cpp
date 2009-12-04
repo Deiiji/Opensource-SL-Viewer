@@ -1,5 +1,5 @@
 /**
- * @file llmediaimplgstreamervidplug.h
+ * @file llmediaimplgstreamervidplug.cpp
  * @brief Video-consuming static GStreamer plugin for gst-to-LLMediaImpl
  *
  * $LicenseInfo:firstyear=2007&license=viewergpl$

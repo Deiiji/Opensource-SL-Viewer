@@ -725,19 +725,19 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 	{
 		case MEDIA_EVENT_CONTENT_UPDATED:
 		{
-			// LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_CONTENT_UPDATED " << LL_ENDL;
+			// LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CONTENT_UPDATED " << LL_ENDL;
 		};
 		break;
 		
 		case MEDIA_EVENT_TIME_DURATION_UPDATED:
 		{
-			// LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_TIME_DURATION_UPDATED, time is " << self->getCurrentTime() << " of " << self->getDuration() << LL_ENDL;
+			// LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_TIME_DURATION_UPDATED, time is " << self->getCurrentTime() << " of " << self->getDuration() << LL_ENDL;
 		};
 		break;
 		
 		case MEDIA_EVENT_SIZE_CHANGED:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_SIZE_CHANGED " << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_SIZE_CHANGED " << LL_ENDL;
 			LLRect r = getRect();
 			reshape( r.getWidth(), r.getHeight(), FALSE );
 		};
@@ -786,39 +786,51 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
 		case MEDIA_EVENT_PROGRESS_UPDATED:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_PROGRESS_UPDATED, loading at " << self->getProgressPercent() << "%" << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PROGRESS_UPDATED, loading at " << self->getProgressPercent() << "%" << LL_ENDL;
 		};
 		break;
 
 		case MEDIA_EVENT_STATUS_TEXT_CHANGED:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << self->getStatusText() << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << self->getStatusText() << LL_ENDL;
 		};
 		break;
 
 		case MEDIA_EVENT_LOCATION_CHANGED:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << self->getLocation() << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << self->getLocation() << LL_ENDL;
 		};
 		break;
 
 		case MEDIA_EVENT_CLICK_LINK_HREF:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << self->getClickTarget() << "\", uri is " << self->getClickURL() << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << self->getClickTarget() << "\", uri is " << self->getClickURL() << LL_ENDL;
 			onClickLinkHref(self);
 		};
 		break;
 		
 		case MEDIA_EVENT_CLICK_LINK_NOFOLLOW:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << self->getClickURL() << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << self->getClickURL() << LL_ENDL;
 			onClickLinkNoFollow(self);
 		};
 		break;
 
 		case MEDIA_EVENT_PLUGIN_FAILED:
 		{
-			LL_INFOS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED" << LL_ENDL;
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED" << LL_ENDL;
+		};
+		break;
+
+		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED_LAUNCH" << LL_ENDL;
+		};
+		break;
+		
+		case MEDIA_EVENT_NAME_CHANGED:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAME_CHANGED" << LL_ENDL;
 		};
 		break;
 	};
