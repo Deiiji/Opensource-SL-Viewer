@@ -681,6 +681,22 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 			handle_go_to();
 			return TRUE;
 		}
+	} else
+	/* code added to support double click teleports */
+	if (gSavedSettings.getBOOL("DoubleClickTeleport"))
+	{
+		LLViewerObject *pObj = mPick.getObject();
+
+		if (!mPick.mPosGlobal.isExactlyZero()
+		&& (mPick.mPickType == LLPickInfo::PICK_LAND
+		|| (mPick.mObjectID.notNull() && pObj && !pObj->isHUDAttachment()) ))
+		{
+			LLVector3d pos = mPick.mPosGlobal;
+			pos.mdV[VZ] += gAgent.getAvatarObject()->getPelvisToFoot();
+			gAgent.hideTeleport(true);
+			gAgent.teleportViaLocation(pos);
+			return TRUE;
+		}
 	}
 
 	return FALSE;

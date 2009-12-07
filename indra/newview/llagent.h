@@ -714,6 +714,9 @@ public:
 	//debug methods
 	static void		clearVisualParams(void *);
 
+	// add to support auto-hiding teleport screens during double click teleport
+	bool isTeleportHidden() { return mbHideTeleport; }
+	void hideTeleport(bool value) { mbHideTeleport = value; }
 
 	// stuff to do for any sort of teleport. Returns true if the
 	// teleport can proceed.
@@ -777,6 +780,7 @@ public:
 	EDoubleTapRunMode mDoubleTapRunMode;
 
 private:
+	bool mbHideTeleport; // hide teleport screens in double click teleport
 	bool mbAlwaysRun; // should the avatar run by default rather than walk
 	bool mbRunning;	// is the avatar trying to run right now
 

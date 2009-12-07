@@ -400,7 +400,8 @@ LLAgent::LLAgent() :
 	mAgentWearablesUpdateSerialNum(0),
 	mWearablesLoaded(FALSE),
 	mTextureCacheQueryID(0),
-	mAppearanceSerialNum(0)
+	mAppearanceSerialNum(0),
+	mbHideTeleport(false)  // add to support auto-hiding teleport screens during double click teleport
 {
 	U32 i;
 	for (i = 0; i < TOTAL_CONTROLS; i++)
@@ -6038,6 +6039,9 @@ void LLAgent::teleportRequest(
 		msg->addU64("RegionHandle", region_handle);
 		msg->addVector3("Position", pos_local);
 		LLVector3 look_at(0,1,0);
+		// double-click teleport or camera teleport use this to set direction
+		if(isTeleportHidden()) 
+			look_at = LLViewerCamera::getInstance()->getAtAxis();
 		msg->addVector3("LookAt", look_at);
 		sendReliableMessage();
 	}
