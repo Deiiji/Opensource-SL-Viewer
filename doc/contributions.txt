@@ -125,6 +125,8 @@ Asuka Neely
 	VWR-8179
 Balp Allen
 	VWR-4157
+Be Holder
+	SNOW-379
 Benja Kepler
 	VWR-746
 Biancaluce Robbiani

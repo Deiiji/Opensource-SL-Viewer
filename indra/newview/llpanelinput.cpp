@@ -97,7 +97,7 @@ void LLPanelInput::apply()
 
 void LLPanelInput::cancel()
 {
-	LLViewerCamera::getInstance()->setView(mPreAdjustFOV);
+	LLViewerCamera::getInstance()->setDefaultFOV(mPreAdjustFOV);
 	gSavedSettings.setF32("CameraAngle", LLViewerCamera::getInstance()->getView());
 	gSavedSettings.setF32("CameraOffsetScale", mPreAdjustCameraOffsetScale);
 }
