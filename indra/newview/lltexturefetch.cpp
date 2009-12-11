@@ -314,7 +314,7 @@ public:
 			if (200 <= status &&  status < 300)
 			{
 				success = true;
-				if (203 == status) // partial information (i.e. last block)
+				if (HTTP_PARTIAL_CONTENT == status) // partial information (i.e. last block)
 				{
 					partial = true;
 				}
