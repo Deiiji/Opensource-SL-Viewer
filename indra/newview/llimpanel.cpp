@@ -1194,7 +1194,7 @@ void LLFloaterIMPanel::init(const std::string& session_label)
 								FALSE);
 
 	setTitle(mSessionLabel);
-	mInputEditor->setMaxTextLength(1023);
+	mInputEditor->setMaxTextLength(DB_IM_MSG_STR_LEN);
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
 
