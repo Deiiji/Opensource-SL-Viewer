@@ -2696,21 +2696,55 @@ void handle_dump_focus(void *)
 	llinfos << "Keyboard focus " << (ctrl ? ctrl->getName() : "(none)") << llendl;
 }
 
-class LLSelfStandUp : public view_listener_t
+class LLSelfSitOrStand : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
+		if (gAgent.getAvatarObject() && gAgent.getAvatarObject()->mIsSitting)
+		{
+			gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
+		}
+		else
+		{
+			gAgent.setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
+
+			// Might be first sit
+			LLFirstUse::useSit();
+		}
 		return true;
 	}
 };
 
-class LLSelfEnableStandUp : public view_listener_t
+class LLSelfEnableSitOrStand : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gAgent.getAvatarObject() && gAgent.getAvatarObject()->mIsSitting;
+		bool new_value = gAgent.getAvatarObject() && !gAgent.getFlying();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
+
+		std::string label;
+		std::string sit_text;
+		std::string stand_text;
+		std::string param = userdata["data"].asString();
+		std::string::size_type offset = param.find(",");
+		if (offset != param.npos)
+		{
+			sit_text = param.substr(0, offset);
+			stand_text = param.substr(offset+1);
+		}
+		
+		if (gAgent.getAvatarObject() && gAgent.getAvatarObject()->mIsSitting)
+		{
+			label = stand_text;
+		}
+		else
+		{
+			label = sit_text;
+		}
+		
+		gMenuHolder->childSetText("Self Sit", label);
+		gMenuHolder->childSetText("Self Sit Attachment", label);
+
 		return true;
 	}
 };
@@ -7691,10 +7725,10 @@ void initialize_menus()
 	// most items use the ShowFloater method
 
 	// Self pie menu
-	addMenu(new LLSelfStandUp(), "Self.StandUp");
+	addMenu(new LLSelfSitOrStand(), "Self.SitOrStand");
 	addMenu(new LLSelfRemoveAllAttachments(), "Self.RemoveAllAttachments");
 
-	addMenu(new LLSelfEnableStandUp(), "Self.EnableStandUp");
+	addMenu(new LLSelfEnableSitOrStand(), "Self.EnableSitOrStand");
 	addMenu(new LLSelfEnableRemoveAllAttachments(), "Self.EnableRemoveAllAttachments");
 
 	 // Avatar pie menu
