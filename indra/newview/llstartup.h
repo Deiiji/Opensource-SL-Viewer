@@ -117,6 +117,8 @@ public:
 		// *HACK: On startup, if we were passed a secondlife://app/do/foo
 		// command URL, store it for later processing.
 
+	static bool handleSocksProxy(bool reportOK = true);
+
 private:
 	static std::string startupStateToString(EStartupState state);
 	static EStartupState gStartupState; // Do not set directly, use LLStartup::setStartupState

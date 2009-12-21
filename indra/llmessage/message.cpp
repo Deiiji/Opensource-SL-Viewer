@@ -552,15 +552,15 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 		S32 acks = 0;
 		S32 true_rcv_size = 0;
 
-		U8* buffer = mTrueReceiveBuffer;
-		
-		mTrueReceiveSize = mPacketRing.receivePacket(mSocket, (char *)mTrueReceiveBuffer);
-		// If you want to dump all received packets into SecondLife.log, uncomment this
-		//dumpPacketToLog();
-		
+		U8* buffer = mTrueReceiveBuffer.buffer;
+
+		mTrueReceiveSize = mPacketRing.receivePacket(mSocket, (char *)mTrueReceiveBuffer.buffer);			
 		receive_size = mTrueReceiveSize;
 		mLastSender = mPacketRing.getLastSender();
 		mLastReceivingIF = mPacketRing.getLastReceivingInterface();
+		
+		// If you want to dump all received packets into SecondLife.log, uncomment this
+		//dumpPacketToLog();
 		
 		if (receive_size < (S32) LL_MINIMUM_VALID_PACKET_SIZE)
 		{
@@ -619,7 +619,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 				for(S32 i = 0; i < acks; ++i)
 				{
 					true_rcv_size -= sizeof(TPACKETID);
-					memcpy(&mem_id, &mTrueReceiveBuffer[true_rcv_size], /* Flawfinder: ignore*/
+					memcpy(&mem_id, &buffer[true_rcv_size], /* Flawfinder: ignore*/
 					     sizeof(TPACKETID));
 					packet_id = ntohl(mem_id);
 					//LL_INFOS("Messaging") << "got ack: " << packet_id << llendl;
@@ -3377,7 +3377,7 @@ void LLMessageSystem::dumpPacketToLog()
 	{
 		S32 offset = cur_line_pos * 3;
 		snprintf(line_buffer + offset, sizeof(line_buffer) - offset,
-				 "%02x ", mTrueReceiveBuffer[i]);	/* Flawfinder: ignore */
+				 "%02x ", mTrueReceiveBuffer.buffer[i]);	/* Flawfinder: ignore */
 		cur_line_pos++;
 		if (cur_line_pos >= 16)
 		{
