@@ -144,8 +144,12 @@ void LLPluginProcessChild::idle(void)
 			break;
 			
 			case STATE_PLUGIN_LOADED:
-				setState(STATE_PLUGIN_INITIALIZING);
-				sendMessageToPlugin(LLPluginMessage("base", "init"));
+				{
+					setState(STATE_PLUGIN_INITIALIZING);
+					LLPluginMessage message("base", "init");
+					message.setValue("user_data_path", mUserDataPath);
+					sendMessageToPlugin(message);
+				}
 			break;
 			
 			case STATE_PLUGIN_INITIALIZING:
@@ -309,6 +313,7 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
 			if(message_name == "load_plugin")
 			{
 				mPluginFile = parsed.getValue("file");
+				mUserDataPath = parsed.getValue("user_data_path");
 			}
 			else if(message_name == "shm_add")
 			{

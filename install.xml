@@ -48,31 +48,17 @@
         <key>copyright</key>
         <string>Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002  Sam Lantinga</string>
         <key>description</key>
-        <string>The Simple DirectMedia Layer libraries are used for handling input and basic window/GL setup on the Linux client.</string>
+        <string>The Simple DirectMedia Layer libraries are used for handling input and basic window/GL setup on the Linux client.  Packages also include cursors.</string>
         <key>license</key>
         <string>lgpl</string>
         <key>packages</key>
         <map>
-          <key>darwin</key>
-          <map>
-            <key>md5sum</key>
-            <string>7b07e7121a3623b2553ed36fb9024b40</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.5-darwin-20080818.tar.bz2</uri>
-          </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>25f8a8fc4ea94169fe6222571b8d5e55</string>
+            <string>fce0ff7d2cdf0f36c1647e6a3916e29e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.12-linux-20081222c.tar.bz2</uri>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>md5sum</key>
-            <string>149626b0c10d7eb8b9f9be96b5318218</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.5-windows-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.12-linux-20090218.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -950,9 +936,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>b40a13847ee773c9ee06f641fe0dd1c2</string>
+            <string>7f818f13faf7c02838fe66f7d27e1913</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-darwin-20091023.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-darwin-20091124.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -964,9 +950,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>6f2f911545e5906edc87f4f3cda423a1</string>
+            <string>92cff05661b5547caae7cc6c66d09870</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-20091023.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-20091123.tar.bz2</uri>
           </map>
         </map>
       </map>

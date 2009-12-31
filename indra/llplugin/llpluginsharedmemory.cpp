@@ -95,6 +95,10 @@ std::string LLPluginSharedMemory::createName(void)
 	return newname.str();
 }
 
+/**
+ * @brief LLPluginSharedMemoryImpl is the platform-dependent implementation of LLPluginSharedMemory. TODO:DOC is this necessary/sufficient? kinda obvious.
+ *
+ */
 class LLPluginSharedMemoryPlatformImpl
 {
 public:
@@ -111,6 +115,9 @@ public:
 
 };
 
+/**
+ * Constructor. Creates a shared memory segment.
+ */
 LLPluginSharedMemory::LLPluginSharedMemory()
 {
 	mSize = 0;
@@ -120,6 +127,9 @@ LLPluginSharedMemory::LLPluginSharedMemory()
 	mImpl = new LLPluginSharedMemoryPlatformImpl;
 }
 
+/**
+ * Destructor. Uses destroy() and detach() to ensure shared memory segment is cleaned up.
+ */
 LLPluginSharedMemory::~LLPluginSharedMemory()
 {
 	if(mNeedsDestroy)

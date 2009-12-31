@@ -84,6 +84,47 @@ LONG WINAPI myWin32ExceptionHandler( struct _EXCEPTION_POINTERS* exception_infop
 	return EXCEPTION_EXECUTE_HANDLER;	
 }
 
+// Taken from : http://blog.kalmbachnet.de/?postid=75
+// The MSVC 2005 CRT forces the call of the default-debugger (normally Dr.Watson)
+// even with the other exception handling code. This (terrifying) piece of code
+// patches things so that doesn't happen.
+LPTOP_LEVEL_EXCEPTION_FILTER WINAPI MyDummySetUnhandledExceptionFilter(
+	LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter )
+{
+	return NULL;
+}
+
+BOOL PreventSetUnhandledExceptionFilter()
+{
+// WARNING: This won't work on 64-bit Windows systems so we turn it off it.
+//          It should work for any flavor of 32-bit Windows we care about.
+//          If it's off, sometimes you will see an OS message when a plugin crashes
+#ifndef _WIN64
+	HMODULE hKernel32 = LoadLibraryA( "kernel32.dll" );
+	if ( NULL == hKernel32 )
+		return FALSE;
+
+	void *pOrgEntry = GetProcAddress( hKernel32, "SetUnhandledExceptionFilter" );
+	if( NULL == pOrgEntry )
+		return FALSE;
+
+	unsigned char newJump[ 100 ];
+	DWORD dwOrgEntryAddr = (DWORD)pOrgEntry;
+	dwOrgEntryAddr += 5; // add 5 for 5 op-codes for jmp far
+	void *pNewFunc = &MyDummySetUnhandledExceptionFilter;
+	DWORD dwNewEntryAddr = (DWORD) pNewFunc;
+	DWORD dwRelativeAddr = dwNewEntryAddr - dwOrgEntryAddr;
+
+	newJump[ 0 ] = 0xE9;  // JMP absolute
+	memcpy( &newJump[ 1 ], &dwRelativeAddr, sizeof( pNewFunc ) );
+	SIZE_T bytesWritten;
+	BOOL bRet = WriteProcessMemory( GetCurrentProcess(), pOrgEntry, newJump, sizeof( pNewFunc ) + 1, &bytesWritten );
+	return bRet;
+#else
+	return FALSE;
+#endif
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //	Hook our exception handler and replace the system one
 void initExceptionHandler()
@@ -92,6 +133,7 @@ void initExceptionHandler()
 
 	// save old exception handler in case we need to restore it at the end
 	prev_filter = SetUnhandledExceptionFilter( myWin32ExceptionHandler );
+	PreventSetUnhandledExceptionFilter();
 }
 
 bool checkExceptionHandler()
@@ -99,6 +141,8 @@ bool checkExceptionHandler()
 	bool ok = true;
 	LPTOP_LEVEL_EXCEPTION_FILTER prev_filter;
 	prev_filter = SetUnhandledExceptionFilter(myWin32ExceptionHandler);
+
+	PreventSetUnhandledExceptionFilter();
 
 	if (prev_filter != myWin32ExceptionHandler)
 	{
