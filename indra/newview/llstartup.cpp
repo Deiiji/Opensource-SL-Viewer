@@ -4216,9 +4216,9 @@ void apply_udp_blacklist(const std::string& csv)
 
 bool LLStartUp::handleSocksProxy(bool reportOK)
 {
-	bool use_socks_proxy = gSavedSettings.getBOOL("Socks5ProxyEnabled");
-	if (use_socks_proxy)
-	{	
+	bool use_http_proxy = gSavedSettings.getBOOL("BrowserProxyEnabled");
+	if (use_http_proxy)
+	{
 		std::string httpProxyType = gSavedSettings.getString("Socks5HttpProxyType");
 
 		// Determine the http proxy type (if any)
@@ -4240,6 +4240,15 @@ bool LLStartUp::handleSocksProxy(bool reportOK)
 		{
 			LLSocks::getInstance()->DisableHttpProxy();
 		}
+	}
+	else
+	{
+		LLSocks::getInstance()->DisableHttpProxy();
+	}
+	
+	bool use_socks_proxy = gSavedSettings.getBOOL("Socks5ProxyEnabled");
+	if (use_socks_proxy)
+	{	
 
 		// Determine and update LLSocks with the saved authentication system
 		std::string auth_type = gSavedSettings.getString("Socks5AuthType");
@@ -4298,8 +4307,7 @@ bool LLStartUp::handleSocksProxy(bool reportOK)
 	}
 	else
 	{
-		LLSocks::getInstance()->stopProxy(); //ensure no proxy is running and its all cleaned up
-		LLSocks::getInstance()->DisableHttpProxy();
+		LLSocks::getInstance()->stopProxy(); //ensure no UDP proxy is running and its all cleaned up
 	}
 
 	return true;

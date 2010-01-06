@@ -72,20 +72,15 @@
 	     left_delta="20" max_val="13050" min_val="13000" mouse_opaque="true"
 	     name="connection_port" width="150" />
 
-	<check_box bottom="-220" bottom_delta="-35" enabled="true"
-	     follows="left|top" font="SansSerifSmall" height="16" initial_value="false"
-	     label="Enable SOCKS 5 Proxy" left="6" mouse_opaque="true"
-	     name="socks5_proxy_enabled" radio_style="false" width="256" />
-
 	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom_delta="-20" drop_shadow_visible="true" enabled="true"
+	     bottom_delta="-24" drop_shadow_visible="true" enabled="true"
 	     follows="left|top" font="SansSerifSmall" h_pad="0" halign="left"
 	     height="10" left="12" mouse_opaque="false" name="socks5_auth_label"
 	     v_pad="0" width="128">
 		Http Proxy:
 	</text>
 
-  <radio_group bottom="-278" draw_border="false" follows="left|top" height="20" left="12"
+  <radio_group bottom_delta="-8" draw_border="false" follows="left|top" height="20" left="12"
 	     name="socks5_http_proxy_type" width="380" >
     <radio_item height="20" bottom="0" left="100" name="None" width="50"
 		  tool_tip="No Http Proxy">
@@ -100,6 +95,11 @@
       Web
     </radio_item>
   </radio_group>
+
+	<check_box bottom_delta="-24" enabled="true"
+	     follows="left|top" font="SansSerifSmall" height="16" initial_value="false"
+	     label="Enable SOCKS 5 Proxy" left="6" mouse_opaque="true"
+	     name="socks5_proxy_enabled" radio_style="false" width="256" />
 
 	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 	     bottom_delta="-26" drop_shadow_visible="true" enabled="true"
@@ -127,7 +127,7 @@
 		Socks5 Authentication:
 	</text>
 
- <radio_group bottom_delta="-6" draw_border="true" follows="left|top" height="20" left="12"
+ <radio_group bottom_delta="-6" draw_border="false" follows="left|top" height="20" left="12"
 	     name="socks5_auth" width="420">
     <radio_item bottom_delta="0" height="20" left_delta="80" name="None" width="50"
 		  tool_tip="No authentication">

@@ -243,12 +243,12 @@ void LLPanelNetwork::updateProxyEnabled(LLPanelNetwork * self, bool enabled, std
 	self->childSetEnabled("socks5_proxy_port",  enabled);
 	self->childSetEnabled("socks5_auth_label",  enabled);
 	self->childSetEnabled("socks5_auth",        enabled);
-	// self->childSetEnabled("socks5_http_enabled", enabled);
-	self->childSetEnabled("socks5_http_proxy_type", enabled);
 
 	// disable the web option if the web proxy has not been configured
 	// this is still not ideal as apply or ok is needed for this to be saved to the preferences
 	self->childSetEnabled("Web", gSavedSettings.getBOOL("BrowserProxyEnabled"));
+
+	self->childSetEnabled("Socks", enabled);
 
 	// Hide the auth specific lables if authtype is none or
 	// we are not enabled.
