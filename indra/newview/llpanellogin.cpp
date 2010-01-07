@@ -203,9 +203,18 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	reshape(rect.getWidth(), rect.getHeight());
 
 #if !USE_VIEWER_AUTH
-	childSetPrevalidate("first_name_edit", LLLineEditor::prevalidatePrintableNoSpace);
-	childSetPrevalidate("last_name_edit", LLLineEditor::prevalidatePrintableNoSpace);
+	LLComboBox* first_name_combo = sInstance->getChild<LLComboBox>("first_name_combo");
+	first_name_combo->setCommitCallback(onSelectLoginEntry);
+	first_name_combo->setFocusLostCallback(onLoginComboLostFocus);
+	first_name_combo->setPrevalidate(LLLineEditor::prevalidatePrintableNoSpace);
+	first_name_combo->setSuppressTentative(true);
 
+
+	LLLineEditor* last_name_edit = sInstance->getChild<LLLineEditor>("last_name_edit");
+	last_name_edit->setPrevalidate(LLLineEditor::prevalidatePrintableNoSpace);
+	last_name_edit->setCommitCallback(onLastNameEditLostFocus);
+
+	childSetCommitCallback("remember_name_check", onNameCheckChanged);
 	childSetCommitCallback("password_edit", mungePassword);
 	childSetKeystrokeCallback("password_edit", onPassKey, this);
 	childSetUserData("password_edit", this);
@@ -332,7 +341,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	// kick off a request to grab the url manually
 	gResponsePtr = LLIamHereLogin::build( this );
-	std::string login_page = gSavedSettings.getString("LoginPage");
+
+	std::string login_page = LLViewerLogin::getInstance()->getLoginPageURI();
 	if (login_page.empty())
 	{
 		login_page = getString( "real_url" );
@@ -415,6 +425,23 @@ LLPanelLogin::~LLPanelLogin()
 	if ( gFocusMgr.getDefaultKeyboardFocus() == this )
 	{
 		gFocusMgr.setDefaultKeyboardFocus(NULL);
+	}
+}
+
+void LLPanelLogin::setLoginHistory(LLSavedLogins const& login_history)
+{
+	sInstance->mLoginHistoryData = login_history;
+
+	LLComboBox* login_combo = sInstance->getChild<LLComboBox>("first_name_combo");
+	llassert(login_combo);
+	login_combo->clear();
+
+	LLSavedLoginsList const& saved_login_entries(login_history.getEntries());
+	for (LLSavedLoginsList::const_reverse_iterator i = saved_login_entries.rbegin();
+	     i != saved_login_entries.rend(); ++i)
+	{
+		LLSD e = i->asLLSD();
+		if (e.isMap()) login_combo->add(i->getDisplayString(), e);
 	}
 }
 
@@ -531,29 +558,33 @@ void LLPanelLogin::giveFocus()
 	if( sInstance )
 	{
 		// Grab focus and move cursor to first blank input field
-		std::string first = sInstance->childGetText("first_name_edit");
+		std::string first = sInstance->childGetText("first_name_combo");
 		std::string pass = sInstance->childGetText("password_edit");
 
 		BOOL have_first = !first.empty();
 		BOOL have_pass = !pass.empty();
 
-		LLLineEditor* edit = NULL;
-		if (have_first && !have_pass)
+		if (!have_first)
 		{
+			// User doesn't have a name, so start there.
+			LLComboBox* combo = sInstance->getChild<LLComboBox>("first_name_combo");
+			combo->setFocusText(TRUE);
+		}
+		else if (!have_pass)
+		{
+			LLLineEditor* edit = NULL;
 			// User saved his name but not his password.  Move
 			// focus to password field.
 			edit = sInstance->getChild<LLLineEditor>("password_edit");
+			edit->setFocus(TRUE);
+			edit->selectAll();
 		}
 		else
 		{
-			// User doesn't have a name, so start there.
-			edit = sInstance->getChild<LLLineEditor>("first_name_edit");
-		}
-
-		if (edit)
-		{
-			edit->setFocus(TRUE);
-			edit->selectAll();
+			// else, we have both name and password.
+			// We get here waiting for the login to happen.
+			LLButton* connect_btn = sInstance->getChild<LLButton>("connect_btn");
+			connect_btn->setFocus(TRUE);
 		}
 	}
 #endif
@@ -581,7 +612,8 @@ void LLPanelLogin::show(const LLRect &rect,
 // static
 void LLPanelLogin::setFields(const std::string& firstname,
 			     const std::string& lastname,
-			     const std::string& password)
+			     const std::string& password,
+			     const LLSavedLogins& login_history)
 {
 	if (!sInstance)
 	{
@@ -589,10 +621,13 @@ void LLPanelLogin::setFields(const std::string& firstname,
 		return;
 	}
 
-	sInstance->childSetText("first_name_edit", firstname);
+	LLComboBox* login_combo = sInstance->getChild<LLComboBox>("first_name_combo");
 	sInstance->childSetText("last_name_edit", lastname);
 
-	
+	llassert_always(firstname.find(' ') == std::string::npos);
+	login_combo->setLabel(firstname);
+
+
 	// OGPX : Are we guaranteed that LLAppViewer::instance exists already?
 	if (gSavedSettings.getBOOL("OpenGridProtocol"))
 	{
@@ -627,6 +662,69 @@ void LLPanelLogin::setFields(const std::string& firstname,
 	}
 }
 
+// static
+void LLPanelLogin::setFields(const LLSavedLoginEntry& entry, bool takeFocus)
+{
+	if (!sInstance)
+	{
+		llwarns << "Attempted setFields with no login view shown" << llendl;
+		return;
+	}
+
+	LLCheckBoxCtrl* remember_pass_check = sInstance->getChild<LLCheckBoxCtrl>("remember_check");
+	LLComboBox* login_combo = sInstance->getChild<LLComboBox>("first_name_combo");
+	login_combo->setLabel(entry.getFirstName());
+	login_combo->resetDirty();
+	login_combo->resetTextDirty();
+
+	LLLineEditor* last_name = sInstance->getChild<LLLineEditor>("last_name_edit");
+	last_name->setText(entry.getLastName());
+	last_name->resetDirty();
+
+	if (entry.getPassword().empty())
+	{
+		sInstance->childSetText("password_edit", std::string(""));
+		remember_pass_check->setValue(LLSD(false));
+	}
+	else
+	{
+		const std::string filler("123456789!123456");
+		sInstance->childSetText("password_edit", filler);
+		sInstance->mIncomingPassword = filler;
+		sInstance->mMungedPassword = entry.getPassword();
+		remember_pass_check->setValue(LLSD(true));
+	}
+
+	LLComboBox* server_combo = sInstance->getChild<LLComboBox>("server_combo");
+	if (server_combo->getSimple() != entry.getGridName())	// Avoid loops.
+	{
+		server_combo->setSimple(entry.getGridName());	// Same string as used in login_show().
+	}
+
+	LLViewerLogin* vl = LLViewerLogin::getInstance();
+
+	if (entry.getGrid() == GRID_INFO_OTHER)
+	{
+		vl->setGridURI(entry.getGridURI().asString());
+		vl->setHelperURI(entry.getHelperURI().asString());
+		vl->setLoginPageURI(entry.getLoginPageURI().asString());
+	}
+
+	EGridInfo entry_grid = entry.getGrid();
+
+	if (entry_grid == GRID_INFO_OTHER || entry_grid != vl->getGridChoice())
+	{
+		vl->setGridChoice(entry_grid);
+
+		// grid changed so show new splash screen (possibly)
+		loadLoginPage();
+	}
+
+	if (takeFocus)
+	{
+		giveFocus();
+	}
+}
 
 // static
 void LLPanelLogin::addServer(const std::string& server, S32 domain_name)
@@ -653,7 +751,7 @@ void LLPanelLogin::getFields(std::string *firstname,
 		return;
 	}
 
-	*firstname = sInstance->childGetText("first_name_edit");
+	*firstname = sInstance->childGetText("first_name_combo");
 	LLStringUtil::trim(*firstname);
 
 	*lastname = sInstance->childGetText("last_name_edit");
@@ -798,10 +896,12 @@ void LLPanelLogin::loadLoginPage()
 	
 	std::ostringstream oStr;
 
-	std::string login_page = gSavedSettings.getString("LoginPage");
+	LLViewerLogin* vl = LLViewerLogin::getInstance();
+	std::string login_page = vl->getLoginPageURI();
 	if (login_page.empty())
 	{
 		login_page = sInstance->getString( "real_url" );
+		vl->setLoginPageURI(login_page);
 	}
 	oStr << login_page;
 	
@@ -953,6 +1053,34 @@ void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 	}
 }
 
+
+bool LLPanelLogin::getRememberLogin()
+{
+	bool remember = false;
+
+	if (sInstance)
+	{
+		LLCheckBoxCtrl* remember_login = sInstance->getChild<LLCheckBoxCtrl>("remember_name_check");
+		if (remember_login)
+		{
+			remember = remember_login->getValue().asBoolean();
+		}
+	}
+	else
+	{
+		llwarns << "Attempted to query rememberLogin with no login view shown" << llendl;
+	}
+
+	return remember;
+}
+
+// static
+void LLPanelLogin::selectFirstElement(void)
+{
+	sInstance->getChild<LLComboBox>("server_combo")->setCurrentByIndex(0);
+	LLPanelLogin::onSelectServer(NULL, NULL);
+}
+
 //---------------------------------------------------------------------------
 // Protected methods
 //---------------------------------------------------------------------------
@@ -969,7 +1097,7 @@ void LLPanelLogin::onClickConnect(void *)
 		// JC - Make sure the fields all get committed.
 		sInstance->setFocus(FALSE);
 
-		std::string first = sInstance->childGetText("first_name_edit");
+		std::string first = sInstance->childGetText("first_name_combo");
 		std::string last  = sInstance->childGetText("last_name_edit");
 		if (!first.empty() && !last.empty())
 		{
@@ -1053,13 +1181,19 @@ void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 // static
 void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 {
-	// *NOTE: The paramters for this method are ignored. 
+	// *NOTE: The parameters for this method are ignored.
+
+	// This function is only called by one thread, so we can use a static here.
+	static bool looping;
+	if (looping) return;
+	looping = true;
+
 	// LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe, void*)
 	// calls this method.
 
 	// The user twiddled with the grid choice ui.
 	// apply the selection to the grid setting.
-	std::string grid_label;
+	std::string grid_name;
 	S32 grid_index;
 
 	LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
@@ -1068,36 +1202,76 @@ void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 	if (LLSD::TypeInteger == combo_val.type())
 	{
 		grid_index = combo->getValue().asInteger();
-
-		if ((S32)GRID_INFO_OTHER == grid_index)
-		{
-			// This happens if the user specifies a custom grid
-			// via command line.
-			grid_label = combo->getSimple();
-		}
+		grid_name = combo->getSimple();
 	}
 	else
 	{
 		// no valid selection, return other
 		grid_index = (S32)GRID_INFO_OTHER;
-		grid_label = combo_val.asString();
+		grid_name = combo_val.asString();
 	}
 
-	// This new seelction will override preset uris
+	// This new selection will override preset uris
 	// from the command line.
 	LLViewerLogin* vl = LLViewerLogin::getInstance();
-	vl->resetURIs();
+
 	if(grid_index != GRID_INFO_OTHER)
 	{
 		vl->setGridChoice((EGridInfo)grid_index);
 	}
 	else
 	{
-		vl->setGridChoice(grid_label);
+		vl->setGridChoice(grid_name);
+	}
+
+	// Find a saved login entry that uses this grid, if any.
+	bool found = false;
+	LLSavedLoginsList const& entries = sInstance->mLoginHistoryData.getEntries();
+	for (LLSavedLoginsList::const_reverse_iterator i = entries.rbegin(); i != entries.rend(); ++i)
+	{
+		if (!i->asLLSD().isMap())
+		{
+			continue;
+		}
+		if (i->getGridName() == grid_name)
+		{
+		  	if (!vl->nameEditted())
+			{
+				// Change the other fields to match this grid.
+				LLPanelLogin::setFields(*i, false);
+			}
+			else	// Probably creating a new account.
+			{
+				// Likely the current password is for a different grid.
+				clearPassword();
+			}
+			found = true;
+			break;
+		}
+	}
+	if (!found)
+	{
+		clearPassword();
+
+		// If the grid_name starts with 'http[s]://' then
+		// we have to assume it's a new loginuri, set
+		// on the commandline.
+		if (grid_name.substr(0, 4) == "http")
+		{
+			// Use it as login uri.
+			vl->setGridURI(grid_name);
+			// And set the login page if it was given.
+			std::string loginPage = gSavedSettings.getString("LoginPage");
+			std::string helperURI = gSavedSettings.getString("CmdLineHelperURI");
+			if (!loginPage.empty()) vl->setLoginPageURI(loginPage);
+			if (!helperURI.empty()) vl->setHelperURI(helperURI);
+		}
 	}
 
 	// grid changed so show new splash screen (possibly)
 	loadLoginPage();
+
+	looping = false;
 }
 
 void LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe, void*)
@@ -1112,4 +1286,89 @@ void LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe, void*)
 	{
 		onSelectServer(combo, NULL);	
 	}
+}
+
+// static
+void LLPanelLogin::onLastNameEditLostFocus(LLUICtrl* ctrl, void* data)
+{
+	if (sInstance)
+	{
+		LLLineEditor* edit = sInstance->getChild<LLLineEditor>("last_name_edit");
+		if(ctrl == edit)
+		{
+			if (edit->isDirty())
+			{
+				clearPassword();
+				LLViewerLogin::getInstance()->setNameEditted(true);
+			}
+		}
+	}
+}
+
+// static
+void LLPanelLogin::onSelectLoginEntry(LLUICtrl* ctrl, void* data)
+{
+	if (sInstance)
+	{
+		LLComboBox* combo = sInstance->getChild<LLComboBox>("first_name_combo");
+		if (ctrl == combo)
+		{
+			LLSD selected_entry = combo->getSelectedValue();
+			if (!selected_entry.isUndefined())
+			{
+				LLSavedLoginEntry entry(selected_entry);
+				setFields(entry);
+			}
+			// This stops the automatic matching of the first name to a selected grid.
+			LLViewerLogin::getInstance()->setNameEditted(true);
+		}
+	}
+}
+
+// static
+void LLPanelLogin::onLoginComboLostFocus(LLFocusableElement* fe, void*)
+{
+	if (sInstance)
+	{
+		LLComboBox* combo = sInstance->getChild<LLComboBox>("first_name_combo");
+		if(fe == combo)
+		{
+			if (combo->isTextDirty())
+			{
+				clearPassword();
+			}
+			onSelectLoginEntry(combo, NULL);
+		}
+	}
+}
+
+// static
+void LLPanelLogin::onNameCheckChanged(LLUICtrl* ctrl, void* data)
+{
+	if (sInstance)
+	{
+		LLCheckBoxCtrl* remember_login_check = sInstance->getChild<LLCheckBoxCtrl>("remember_name_check");
+		LLCheckBoxCtrl* remember_pass_check = sInstance->getChild<LLCheckBoxCtrl>("remember_check");
+		if (remember_login_check && remember_pass_check)
+		{
+			if (remember_login_check->getValue().asBoolean())
+			{
+				remember_pass_check->setEnabled(true);
+			}
+			else
+			{
+				remember_pass_check->setValue(LLSD(false));
+				remember_pass_check->setEnabled(false);
+			}
+		}
+	}
+}
+
+// static
+void LLPanelLogin::clearPassword()
+{
+	std::string blank;
+	sInstance->childSetText("password_edit", blank);
+	sInstance->mIncomingPassword = blank;
+	sInstance->mMungedPassword = blank;
 }

@@ -595,6 +595,18 @@ std::string utf8str_removeCRLF(const std::string& utf8str)
 	return out;
 }
 
+bool LLStringOps::isHexString(const std::string& str)
+{
+	const char* buf = str.c_str();
+	int len = str.size();
+	while (--len >= 0)
+	{
+		if (!isxdigit(buf[len])) return false;
+	}
+
+	return true;
+}
+
 #if LL_WINDOWS
 // documentation moved to header. Phoenix 2007-11-27
 namespace snprintf_hack
