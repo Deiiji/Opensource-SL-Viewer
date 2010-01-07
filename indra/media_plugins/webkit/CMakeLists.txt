@@ -2,6 +2,10 @@
 
 project(media_plugin_webkit)
 
+if(HAVE_64_BIT)
+	set(REQUIRE_PIC)
+endif(HAVE_64_BIT)
+
 include(00-Common)
 include(LLCommon)
 include(LLImage)
@@ -32,6 +36,14 @@ include_directories(
 set(media_plugin_webkit_SOURCE_FILES
     media_plugin_webkit.cpp
     )
+
+if(HAVE_64_BIT)
+	if(WINDOWS)
+		add_definitions(/FIXED:NO)
+	else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
+		add_definitions(-fPIC)
+	endif(WINDOWS)
+endif (HAVE_64_BIT)
 
 add_library(media_plugin_webkit
     SHARED

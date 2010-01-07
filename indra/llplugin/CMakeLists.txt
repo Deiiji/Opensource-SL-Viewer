@@ -2,6 +2,10 @@
 
 project(llplugin)
 
+if(HAVE_64_BIT)
+	set(REQUIRE_PIC)
+endif(HAVE_64_BIT)
+
 include(00-Common)
 include(LLCommon)
 include(LLImage)
@@ -47,6 +51,14 @@ set(llplugin_HEADER_FILES
 
 set_source_files_properties(${llplugin_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
+
+if(HAVE_64_BIT)
+	if(WINDOWS)
+		add_definitions(/FIXED:NO)
+	else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
+		add_definitions(-fPIC)
+	endif(WINDOWS)
+endif (HAVE_64_BIT)
 
 list(APPEND llplugin_SOURCE_FILES ${llplugin_HEADER_FILES})
 
