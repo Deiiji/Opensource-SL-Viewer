@@ -65,8 +65,8 @@ std::set<LLViewerImage*> LLTextureView::sDebugImages;
 
 ////////////////////////////////////////////////////////////////////////////
 
-static std::string title_string1a("Tex UUID Area  DDis(Req)  DecodePri(Fetch)     [download]        pk/max");
-static std::string title_string1b("Tex UUID Area  DDis(Req)  Fetch(DecodePri)     [download]        pk/max");
+static std::string title_string1a("Tex UUID Area  DDis(Req)  DecodePri(Fetch)     [download]");
+static std::string title_string1b("Tex UUID Area  DDis(Req)  Fetch(DecodePri)     [download]");
 static std::string title_string2("State");
 static std::string title_string3("Pkt Bnd");
 static std::string title_string4("  W x H (Dis) Mem");
@@ -203,13 +203,14 @@ void LLTextureBar::draw()
 	}
 	else
 	{
-		tex_str = llformat("%s %7.0f %d(%d) %8.0f(0x%08x)",
+		tex_str = llformat("%s %7.0f %d(%d) %8.0f(0x%08x) %1.2f",
 						   uuid_str.c_str(),
 						   mImagep->mMaxVirtualSize,
 						   mImagep->mDesiredDiscardLevel,
 						   mImagep->mRequestedDiscardLevel,
 						   mImagep->getDecodePriority(),
-						   mImagep->mFetchPriority);
+						   mImagep->mFetchPriority,
+						   mImagep->mDownloadProgress);
 	}
 
 	LLFontGL::getFontMonospace()->renderUTF8(tex_str, 0, title_x1, getRect().getHeight(),
@@ -255,7 +256,7 @@ void LLTextureBar::draw()
 
 	// Draw the progress bar.
 	S32 bar_width = 100;
-	S32 bar_left = 260;
+	S32 bar_left = 330;
 	left = bar_left;
 	right = left + bar_width;
 
@@ -264,13 +265,23 @@ void LLTextureBar::draw()
 
 	F32 data_progress = mImagep->mDownloadProgress;
 	
-	if (data_progress > 0.0f)
+	if (data_progress > 0.0f && data_progress <= 1.0f)
 	{
 		// Downloaded bytes
 		right = left + llfloor(data_progress * (F32)bar_width);
 		if (right > left)
 		{
 			gGL.color4f(0.f, 0.f, 1.f, 0.75f);
+			gl_rect_2d(left, top, right, bottom);
+		}
+	}
+	else if (data_progress > 1.0f)
+	{
+		// Small cached textures generate this oddity.  SNOW-168
+		right = left + bar_width;
+		if (right > left)
+		{
+			gGL.color4f(0.f, 0.33f, 0.f, 0.75f);
 			gl_rect_2d(left, top, right, bottom);
 		}
 	}
@@ -480,28 +491,25 @@ void LLGLTexMemBar::draw()
 #endif
 	//----------------------------------------------------------------------------
 
-	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d IW:%d RAW:%d HTP:%d",
+	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d IW:%d RAW:%d HTP:%d BW: %.0f/%.0f",
 					gImageList.getNumImages(),
-					LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes(),
-					LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount, 
-					LLAppViewer::getTextureCache()->getNumReads(), LLAppViewer::getTextureCache()->getNumWrites(),
+					LLAppViewer::getTextureFetch()->getNumRequests(),
+					LLAppViewer::getTextureFetch()->getNumDeletes(),
+					LLAppViewer::getTextureFetch()->mPacketCount,
+					LLAppViewer::getTextureFetch()->mBadPacketCount,
+					LLAppViewer::getTextureCache()->getNumReads(),
+					LLAppViewer::getTextureCache()->getNumWrites(),
 					LLLFSThread::sLocal->getPending(),
 					LLAppViewer::getImageDecodeThread()->getPending(), 
 					LLImageRaw::sRawImageCount,
-					LLAppViewer::getTextureFetch()->getNumHTTPRequests());
+					LLAppViewer::getTextureFetch()->getNumHTTPRequests(),
+					LLAppViewer::getTextureFetch()->getTextureBandwidth(),
+					gSavedSettings.getF32("ThrottleBandwidthKBPS"));
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, line_height*2,
 									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-
-	left = 550;
-	F32 bandwidth = LLAppViewer::getTextureFetch()->getTextureBandwidth();
-	F32 max_bandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
-	color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth*.75f ? LLColor4::yellow : text_color;
-	color[VALPHA] = text_color[VALPHA];
-	text = llformat("BW:%.0f/%.0f",bandwidth, max_bandwidth);
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left, line_height*2,
-											 color, LLFontGL::LEFT, LLFontGL::TOP);
+	left = 600;
 	
 	S32 dx1 = 0;
 	if (LLAppViewer::getTextureFetch()->mDebugPause)
