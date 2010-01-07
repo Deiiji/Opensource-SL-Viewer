@@ -85,9 +85,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>abd07d760cdc7d23da3b861f34b09c92</string>
+            <string>115d8ac44a91efdb173e9b3e478c46b6</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-darwin-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.3.7-darwin-20090805.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -207,23 +207,23 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>081ef195a856c708cc473c4421b4b290</string>
+            <string>609c469ee1857723260b5a9943b9c2c1</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-darwin-20090223.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-darwin-20091202.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>b516a8576ecad0f957db7fc2cd972aac</string>
+            <string>7085044567999489d82b9ed28f16e480</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux-20090223a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux-20091202.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
-            <string>6db62bb7f141b3a1b3107e1f9aad0eb0</string>
+            <string>b4aeefcba3d749f1e9f2a12c6f70192b</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux64-20090223a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux64-20091202.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -443,16 +443,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>694173293a483c01472a30cc7d895c5a</string>
+            <string>f00144dfb597140f328774c3244f0c3e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-darwin-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-darwin-20090922.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>eeffb03bd6672b6e7751448e5306d874</string>
+            <string>978ad7c67fe4a2419bfc841e2956ff9f</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-linux-20081201.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-linux-20090521c.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -1161,9 +1161,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>f0d9a8d1318b519cffe6c40c9cac4e21</string>
+            <string>c8223e9454223e3d519fe40d71c3ddd2</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-linux-20081010c-59a71b14-plughw.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-linux-20091216-56cc0386.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -1402,9 +1402,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>1804b54034ef7f82832506a44acb06b8</string>
+            <string>26fe88213c213dc6153690ab142c25ca</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-linux-20090603.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3dfsg-linux-20091208.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>

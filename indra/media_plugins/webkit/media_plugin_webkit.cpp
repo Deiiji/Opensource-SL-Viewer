@@ -97,6 +97,12 @@ private:
 	int mLastMouseY;
 	bool mFirstFocus;
 	
+	void setInitState(int state)
+	{
+//		std::cerr << "changing init state to " << state << std::endl;
+		mInitState = state;
+	}
+	
 	////////////////////////////////////////////////////////////////////////////////
 	//
 	void update(int milliseconds)
@@ -209,13 +215,15 @@ private:
 			// Enable plugins
 			LLQtWebKit::getInstance()->enablePlugins(true);
 #elif LL_DARWIN
-			// Disable plugins
-			LLQtWebKit::getInstance()->enablePlugins(false);
+			// Enable plugins
+			LLQtWebKit::getInstance()->enablePlugins(true);
 #elif LL_LINUX
-			// Disable plugins
-			LLQtWebKit::getInstance()->enablePlugins(false);
+			// Enable plugins
+			LLQtWebKit::getInstance()->enablePlugins(true);
 #endif
-            
+			// Enable cookies
+			LLQtWebKit::getInstance()->enableCookies( true );
+
 			// tell LLQtWebKit about the size of the browser window
 			LLQtWebKit::getInstance()->setSize( mBrowserWindowId, mWidth, mHeight );
 
@@ -228,11 +236,11 @@ private:
 			// don't flip bitmap
 			LLQtWebKit::getInstance()->flipWindow( mBrowserWindowId, true );
 			
-			// Set the background color to black - mostly for initial login page
+			// set background color to be black - mostly for initial login page
 			LLQtWebKit::getInstance()->setBackgroundColor( mBrowserWindowId, 0x00, 0x00, 0x00 );
 
 			// Set state _before_ starting the navigate, since onNavigateBegin might get called before this call returns.
-			mInitState = INIT_STATE_NAVIGATING;
+			setInitState(INIT_STATE_NAVIGATING);
 
 			// Don't do this here -- it causes the dreaded "white flash" when loading a browser instance.
 			// FIXME: Re-added this because navigating to a "page" initializes things correctly - especially
@@ -286,7 +294,7 @@ private:
 	{
 		if(mInitState == INIT_STATE_WAIT_REDRAW)
 		{
-			mInitState = INIT_STATE_RUNNING;
+			setInitState(INIT_STATE_RUNNING);
 		}
 		
 		// flag that an update is required
@@ -308,7 +316,7 @@ private:
 
 		if(mInitState == INIT_STATE_NAVIGATE_COMPLETE)
 		{
-			mInitState = INIT_STATE_WAIT_REDRAW;
+			setInitState(INIT_STATE_WAIT_REDRAW);
 		}
 		
 	}
@@ -331,7 +339,7 @@ private:
 		}
 		else if(mInitState == INIT_STATE_NAVIGATING)
 		{
-			mInitState = INIT_STATE_NAVIGATE_COMPLETE;
+			setInitState(INIT_STATE_NAVIGATE_COMPLETE);
 		}
 
 	}
@@ -624,7 +632,11 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			}
 			else if(message_name == "cleanup")
 			{
-				// TODO: clean up here
+				// DTOR most likely won't be called but the recent change to the way this process
+				// is (not) killed means we see this message and can do what we need to here.
+				// Note: this cleanup is ultimately what writes cookies to the disk
+				LLQtWebKit::getInstance()->remObserver( mBrowserWindowId, this );
+				LLQtWebKit::getInstance()->reset();
 			}
 			else if(message_name == "shm_added")
 			{
