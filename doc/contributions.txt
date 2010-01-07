@@ -116,6 +116,8 @@ Angus Boyd
 	VWR-592
 Ann Congrejo
 	CT-193
+Archimedes Plutonian
+	SNOW-197
 Ardy Lay
 	SNOW-364
 Argent Stonecutter

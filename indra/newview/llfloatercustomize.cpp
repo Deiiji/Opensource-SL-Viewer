@@ -780,6 +780,23 @@ void LLPanelEditWearable::draw()
 	childSetVisible("title_loading", FALSE);
 
 	childSetVisible("path", FALSE);
+
+	{
+		// Display the shape's nominal height.
+		//
+		// The value for avsize is the best available estimate from
+		// measuring against prims.
+		float avsize = avatar->mBodySize.mV[VZ] + .195;
+		int inches = (int)(avsize / .0254f);
+		int feet = inches / 12;
+		inches %= 12;
+
+		std::ostringstream avheight(std::ostringstream::trunc);
+		avheight << std::fixed << std::setprecision(2) << avsize << " m ("
+			<< feet << "' " << inches << "\")";
+		childSetVisible("avheight", TRUE);
+		childSetTextArg("avheight", "[AVHEIGHT]", avheight.str());
+	}
 	
 	if(has_wearable && !is_modifiable)
 	{

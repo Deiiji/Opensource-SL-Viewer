@@ -109,6 +109,24 @@ scratch and wear it.
       <button bottom="-128" follows="left|top" halign="center" height="24"
 			     label="Create New Shape" label_selected="Create New Shape" left="8"
 			     mouse_opaque="true" name="Create New" scale_image="true" width="170" />
+      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			     bottom="-420" drop_shadow_visible="true" follows="right|bottom"
+			     font="SansSerifSmall" h_pad="0" halign="left" height="14" left="2"
+			     mouse_opaque="true" name="avatar_height_label" v_pad="0" width="150">
+        Height:
+      </text>
+      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			     bottom="-435" drop_shadow_visible="true" follows="right|bottom"
+			     font="SansSerifSmall" h_pad="0" halign="left" height="14" left="2"
+			     mouse_opaque="true" name="avheight" v_pad="0" width="150">
+       [AVHEIGHT]
+      </text>
+      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			     bottom="-450" drop_shadow_visible="true" follows="right|bottom"
+			     font="SansSerifSmall" h_pad="0" halign="left" height="14" left="2"
+			     mouse_opaque="true" name="includes_shoes" v_pad="0" width="150">
+       (includes shoes)
+      </text>
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Save" label_selected="Save" left="123"
 			     mouse_opaque="true" name="Save" scale_image="true" width="82" />
