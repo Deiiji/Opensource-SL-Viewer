@@ -136,14 +136,6 @@ public:
 	 */
 	static bool getRememberLogin();
 
-	/**
-	 * @brief	Make the grid select drop down list visible.
-	 */
-	static void makeServerComboVisible(void)
-	{
-		sInstance->childSetVisible("server_combo", TRUE);
-	}
-
 	static void selectFirstElement(void);
 
 private:
@@ -158,6 +150,7 @@ private:
 	static LLPanelLogin* sInstance;
 	static BOOL		sCapslockDidNotification;
 	BOOL			mHtmlAvailable;
+	BOOL			mShowServerCombo;
 
 	LLSavedLogins	mLoginHistoryData;
 };

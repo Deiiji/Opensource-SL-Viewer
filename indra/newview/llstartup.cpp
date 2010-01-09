@@ -3305,19 +3305,16 @@ bool login_show(LLSavedLogins const& saved_logins)
 {
 	LL_INFOS("AppInit") << "Initializing Login Screen" << LL_ENDL;
 
-#ifdef LL_RELEASE_FOR_DOWNLOAD
-	BOOL bUseDebugLogin = gSavedSettings.getBOOL("UseDebugLogin");
+	BOOL show_server = FALSE;
+	LLSavedLoginsList const& saved_login_entries = saved_logins.getEntries();
 	if (saved_login_entries.size() > 1)
 	{
-		LLPanelLogin::makeServerComboVisible();
+		show_server = TRUE;
 	}
-#else
-	BOOL bUseDebugLogin = TRUE;
-#endif
-
+	
 	// This creates the LLPanelLogin instance.
 	LLPanelLogin::show(	gViewerWindow->getVirtualWindowRect(),
-						bUseDebugLogin,
+						show_server,
 						login_callback, NULL );
 
 	// Now that the LLPanelLogin instance is created,
@@ -3334,7 +3331,6 @@ bool login_show(LLSavedLogins const& saved_logins)
 
 	// Add the commandline -loginuri's to the list at the top.
 	bool have_loginuri = false;
-	LLSavedLoginsList const& saved_login_entries = saved_logins.getEntries();
 	LLViewerLogin* vl = LLViewerLogin::getInstance();
 	std::vector<std::string> const& commandLineURIs(vl->getCommandLineURIs());
 	for (std::vector<std::string>::const_iterator iter = commandLineURIs.begin(); iter != commandLineURIs.end(); ++iter)

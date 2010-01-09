@@ -169,7 +169,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mLogoImage(),
 	mCallback(callback),
 	mCallbackData(cb_data),
-	mHtmlAvailable( TRUE )
+	mHtmlAvailable( TRUE ),
+	mShowServerCombo(show_server)
 {
 	setFocusRoot(TRUE);
 
@@ -848,15 +849,8 @@ void LLPanelLogin::refreshLocation( bool force_visible )
 		sInstance->childSetVisible("regionuri_edit",FALSE); // Do Not show regionuri box if legacy
 	}
 
-
-
-
-#if LL_RELEASE_FOR_DOWNLOAD
-	BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
+	BOOL show_server = sInstance->mShowServerCombo || gSavedSettings.getBOOL("ForceShowGrid");
 	sInstance->childSetVisible("server_combo", show_server);
-#else
-	sInstance->childSetVisible("server_combo", TRUE);
-#endif
 
 #endif
 }
@@ -1020,12 +1014,11 @@ void LLPanelLogin::loadLoginPage()
 	{
 		oStr << "&remember_password=TRUE";
 	}	
-#ifndef	LL_RELEASE_FOR_DOWNLOAD
-	oStr << "&show_grid=TRUE";
-#else
-	if (gSavedSettings.getBOOL("ForceShowGrid"))
+	BOOL show_server = sInstance ? sInstance->mShowServerCombo : FALSE;
+	if (show_server || gSavedSettings.getBOOL("ForceShowGrid"))
+	{
 		oStr << "&show_grid=TRUE";
-#endif
+	}
 #endif
 	
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
