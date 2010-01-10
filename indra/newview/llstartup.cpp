@@ -3305,11 +3305,17 @@ bool login_show(LLSavedLogins const& saved_logins)
 {
 	LL_INFOS("AppInit") << "Initializing Login Screen" << LL_ENDL;
 
+	// Show server combo if there is a grid in saved_logins that isn't agni.
 	BOOL show_server = FALSE;
 	LLSavedLoginsList const& saved_login_entries = saved_logins.getEntries();
-	if (saved_login_entries.size() > 1)
+	for (std::list<LLSavedLoginEntry>::const_iterator iter = saved_login_entries.begin();
+		iter != saved_login_entries.end(); ++iter)
 	{
-		show_server = TRUE;
+		if (iter->getGrid() != GRID_INFO_AGNI)
+		{
+			show_server = TRUE;
+			break;
+		}
 	}
 	
 	// This creates the LLPanelLogin instance.

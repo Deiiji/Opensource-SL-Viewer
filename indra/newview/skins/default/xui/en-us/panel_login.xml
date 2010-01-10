@@ -59,7 +59,7 @@
 	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 	     bottom="10" drop_shadow_visible="true" follows="left|bottom"
 	     font="SansSerif" h_pad="0" halign="left" height="16"
-	     left="455" mouse_opaque="true" name="start_location_text" v_pad="0"
+	     left="470" mouse_opaque="true" name="start_location_text" v_pad="0"
 	     width="95">
 		Start Location:
 	</text>
