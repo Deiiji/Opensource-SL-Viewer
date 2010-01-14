@@ -5,6 +5,7 @@
 
 set -x
 
+export INSTALL_USE_HTTP_FOR_SCP=true
 export PATH=/bin:/usr/bin:$PATH
 arch=`uname | cut -b-6`
 here=`echo $0 | sed 's:[^/]*$:.:'`
