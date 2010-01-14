@@ -55,17 +55,17 @@ public:
 
 	virtual void shutdown();
 
-	/*virtual*/ void initWind();
+	/*virtual*/ bool initWind();
 	/*virtual*/ void cleanupWind();
 
 	/*virtual*/void updateWind(LLVector3 direction, F32 camera_height_above_water);
 
 #if LL_DARWIN
-        typedef S32 MIXBUFFERFORMAT;
+	typedef S32 MIXBUFFERFORMAT;
 #else
-        typedef S16 MIXBUFFERFORMAT;
+	typedef S16 MIXBUFFERFORMAT;
 #endif
-
+	
 protected:
 	/*virtual*/ LLAudioBuffer *createBuffer(); // Get a free buffer, or flush an existing one if you have to.
 	/*virtual*/ LLAudioChannel *createChannel(); // Create a new audio channel.
@@ -83,6 +83,7 @@ protected:
 	void* mUserData;
 
 	LLWindGen<MIXBUFFERFORMAT> *mWindGen;
+	FSOUND_DSPUNIT *mWindDSP;
 };
 
 
