@@ -275,7 +275,7 @@ Darwin)
 
 CYGWIN)
   # install Quicktime.  This will fail outside of Linden's network
-  python `cygpath --windows scripts/install.py` --cache-dir=. quicktime
+  scripts/install.py quicktime
   ;;
 
 esac
