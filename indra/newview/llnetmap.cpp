@@ -838,7 +838,22 @@ BOOL LLNetMap::handleHover( S32 x, S32 y, MASK mask )
 
 BOOL LLNetMap::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
-	LLFloaterWorldMap::show(NULL, FALSE);
+	LLVector3d pos_global = viewPosToGlobal( x, y , gSavedSettings.getBOOL( "MiniMapRotate" ) );
+	BOOL new_target = FALSE;
+	if (!LLTracker::isTracking(NULL))
+	{
+		gFloaterWorldMap->trackLocation(pos_global);
+		new_target = TRUE;
+	}
+
+	if (gSavedSettings.getBOOL("DoubleClickTeleport"))
+	{
+		gAgent.teleportViaLocation(pos_global);
+	}
+	else 
+	{
+		LLFloaterWorldMap::show(NULL, new_target);
+	}
 	return TRUE;
 }
 
