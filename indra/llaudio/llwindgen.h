@@ -137,8 +137,8 @@ public:
 			for (U8 i=mSubSamples; i && numsamples; --i, --numsamples) 
 			{
 				mLastSample = mLastSample + delta;
-				S32	sample_right = mLastSample * mCurrentPanGainR;
-				S32	sample_left = mLastSample - sample_right;
+				S32	sample_right = (S32)(mLastSample * mCurrentPanGainR);
+				S32	sample_left = (S32)mLastSample - sample_right;
 				
 				if (!clip)
 				{
