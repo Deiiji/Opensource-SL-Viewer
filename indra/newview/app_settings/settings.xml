@@ -7712,7 +7712,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>8192</integer>
+      <integer>4096</integer>
     </map>
   <key>RenderMaxNodeSize</key>
   <map>
@@ -7723,7 +7723,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>4096</integer>
+    <integer>8192</integer>
   </map>
     <key>RenderMaxVBOSize</key>
     <map>
