@@ -65,12 +65,6 @@ public:
 	// NOTE: generates L/R interleaved stereo
 	MIXBUFFERFORMAT_T* windGenerate(MIXBUFFERFORMAT_T *newbuffer, int numsamples)
 	{
-		// This turns off the wind synth if it is muted or very very low volume
-		if (mTargetGain < 0.0005f)
-		{
-			return newbuffer;
-		}
-		
 		MIXBUFFERFORMAT_T *cursamplep = newbuffer;
 		
 		// Filter coefficients
