@@ -507,6 +507,7 @@ Paula Innis
 Pixel Gausman
 	SNOW-215
 	SNOW-250
+	SNOW-350
 Peekay Semyorka
 	VWR-7
 	VWR-19

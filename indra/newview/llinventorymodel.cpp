@@ -1392,7 +1392,12 @@ void LLInventoryModel::bulkFetch(std::string url)
 				    folder_sd["fetch_folders"]	= TRUE; //(LLSD::Boolean)sFullFetchStarted;
 				    folder_sd["fetch_items"]	= (LLSD::Boolean)TRUE;
 				    
-				    if (ALEXANDRIA_LINDEN_ID == cat->getOwnerID())
+					LL_DEBUGS("Inventory") << " fetching "<<cat->getUUID()<<" with cat owner "<<cat->getOwnerID()<<" and agent" << gAgent.getID() << LL_ENDL;
+				    //OGPX if (ALEXANDRIA_LINDEN_ID == cat->getOwnerID())
+					// for OGP it really doesnt make sense to have the decision about whether to fetch
+					// from the library or user cap be determined by a hard coded UUID. 
+					// if it isnt an item that belongs to the agent, then fetch from the library
+					if (gAgent.getID() != cat->getOwnerID()) //if i am not the owner, it must be in the library
 					    body_lib["folders"].append(folder_sd);
 				    else
 					    body["folders"].append(folder_sd);
@@ -1428,8 +1433,14 @@ void LLInventoryModel::bulkFetch(std::string url)
 			}
 			if (body_lib["folders"].size())
 			{
-				std::string url_lib = gAgent.getRegion()->getCapability("FetchLibDescendents");
-				LL_DEBUGS("Inventory") << " fetch descendents lib post: " << ll_pretty_print_sd(body) << LL_ENDL; // OGPX
+				std::string url_lib;
+				if (!gSavedSettings.getBOOL("OpenGridProtocol") )
+				{
+					url_lib = gAgent.getRegion()->getCapability("FetchLibDescendents");
+				}else{
+					url_lib = gAgent.getCapability("agent/inventory_library");
+				}
+				LL_DEBUGS("Inventory") << " fetch descendents lib post: " << ll_pretty_print_sd(body_lib) << LL_ENDL; // OGPX
 				LLHTTPClient::post(url_lib, body_lib, new fetchDescendentsResponder(body_lib),300.0);
 			}
 			sFetchTimer.reset();

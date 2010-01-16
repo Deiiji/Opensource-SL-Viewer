@@ -319,9 +319,40 @@ public:
 		
 		LL_DEBUGS("Inventory") << " All the inventory-skeleton content: \n " << ll_pretty_print_sd(content) << LL_ENDL;
 		LL_DEBUGS("Inventory") << " inventory-root: " << LLUserAuth::getInstance()->mResult["inventory-root"] << LL_ENDL;
-		LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE ); // now that we have skeleton and successful place av, continue	
 	}
 };
+
+//OGPX similar to LLInventorySkeletonResponder, except it sets Library instead of user skeleton values
+//TODO: OGPX make a scheme that allows more than one library
+class LLInventoryLibrarySkeletonResponder :
+	public LLHTTPClient::Responder
+{
+public:
+	LLInventoryLibrarySkeletonResponder()
+	{
+	}
+	~LLInventoryLibrarySkeletonResponder()
+	{
+	}
+	void error(U32 statusNum, const std::string& reason)
+	{		
+		LL_INFOS("Inventory") << " status = "
+				<< statusNum << " " << reason << " for cap " << gAgent.getCapability("agent/inventory_library_skeleton") << LL_ENDL;
+		// wasn't sure, but maybe we should continue in spite of error
+		LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE );
+	}
+	void result(const LLSD& content)
+	{
+		LLUserAuth::getInstance()->mResult["inventory-skel-lib"] = content["Skeleton"];
+		// so this is nasty. it makes the assumption that the inventory-skeleton-root is the first folder,
+		// which it is, but still don't like that
+		gInventoryLibraryOwner.set(content["Skeleton"][0]["owner_id"]);
+		gInventoryLibraryRoot.set(content["Skeleton"][0]["folder_id"]);
+		LL_DEBUGS("Inventory") << " All the inventory_library_skeleton content: \n " << ll_pretty_print_sd(content) << LL_ENDL;
+		LL_DEBUGS("Inventory") << " Library Owner: " << gInventoryLibraryOwner.asString() << LL_ENDL;
+	}
+};
+	
 	
 // OGPX : Responder for the HTTP post to rez_avatar/place in the agent domain.
 // OGPX TODO: refactor Place Avatar handling for both login and TP , and make result() smarter
@@ -405,9 +436,18 @@ public:
 
 			return;
 		}
+		LLUserAuth::getInstance()->mAuthResponse = LLUserAuth::E_OK;
+		LLUserAuth::getInstance()->mResult = result;
+		LL_INFOS("OGPX") << "startup is "<< LLStartUp::getStartupState() << LL_ENDL;
+		// OGPX : fetch the library skeleton
+		std::string skeleton_cap = gAgent.getCapability("agent/inventory_library_skeleton");
+		if (!skeleton_cap.empty())
+		{
+			LLHTTPClient::get(skeleton_cap, new LLInventoryLibrarySkeletonResponder());
+		}
 		// OGPX : I think we only need the skeleton once 
 		// (in other words, it doesn't get refetched every time we TP).
-		std::string skeleton_cap = gAgent.getCapability("agent/inventory-skeleton");
+		skeleton_cap = gAgent.getCapability("agent/inventory_skeleton");
 		if (!skeleton_cap.empty())
 		{
 			// LLStartup state will be set in the skeleton responder so we know we have
@@ -422,8 +462,7 @@ public:
 			// progress with the login process. 
 			LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE );
 		}
-		LLUserAuth::getInstance()->mAuthResponse = LLUserAuth::E_OK;
-		LLUserAuth::getInstance()->mResult = result;
+
 
 
 	}
@@ -476,7 +515,17 @@ public:
 		{
 			// OGPX WFID grab the WFID cap (now called the agent/inventory cap) and skeleton cap
 			gAgent.setCapability("agent/inventory",content["capabilities"]["agent/inventory"].asString());
-			gAgent.setCapability("agent/inventory-skeleton",content["capabilities"]["agent/inventory-skeleton"].asString());
+			
+			//This allows both old and new namings for this cap. Moving towards underscore
+			if ( content["capabilities"]["agent/inventory-skeleton"].isDefined()) 
+			{
+				gAgent.setCapability("agent/inventory_skeleton",content["capabilities"]["agent/inventory-skeleton"].asString());
+			} else if ( content["capabilities"]["agent/inventory_skeleton"].isDefined()) 
+			{
+				gAgent.setCapability("agent/inventory_skeleton",content["capabilities"]["agent/inventory_skeleton"].asString());
+			}
+			gAgent.setCapability("agent/inventory_library",content["capabilities"]["agent/inventory_library"].asString());
+			gAgent.setCapability("agent/inventory_library_skeleton",content["capabilities"]["agent/inventory_library_skeleton"].asString());
 			std::string placeAvatarCap = content["capabilities"]["rez_avatar/place"].asString();
 			LLSD args;
 
@@ -563,6 +612,9 @@ public:
 					args["capabilities"]["rez_avatar/place"] = true; // place_avatar
 					args["capabilities"]["agent/info"] = true;
 					args["capabilities"]["agent/inventory-skeleton"] = true;
+					args["capabilities"]["agent/inventory_skeleton"] = true; //allow both namings for now 
+					args["capabilities"]["agent/inventory_library"] = true; //new name for FetchLibDescendents
+					args["capabilities"]["agent/inventory_library_skeleton"] = true;
 					args["capabilities"]["agent/inventory"] = true; // OGPX get from Agent Domain was WebFetchInventoryDescendents
 				}
 				else
@@ -1534,6 +1586,44 @@ bool idle_startup()
 
 	if (STATE_WAIT_LEGACY_LOGIN == LLStartUp::getStartupState())
 	{
+		//so in OGPX we get into this state really early, and if we start checking for caps 
+		// too early, then we end up advancing the startup state too early.
+		// So, don't start checking for the availability of caps being completed
+		// until the HTTP POST daisy chaining has made it through the successful
+		// completion of rez_avatar/place. mAuthResponse is set in 
+		// LLPlaceAvatarLoginResponder::result()
+		if (gSavedSettings.getBOOL("OpenGridProtocol") &&
+			(LLUserAuth::getInstance()->mAuthResponse == LLUserAuth::E_OK))
+		{
+			//OGPX in STATE_LOGIN_AUTHENTICATE, there is a daisy chain of POSTs/GETs and 
+			// responders. At the end we are waiting for the responders for 
+			// inventory skeleton GETs to complete. When those are done, we can advance to the
+			// next step. 
+			// TODO: Note that as we add more and more caps queries to replace the missing
+			// bits that we used to get in legacy authenticate return, we'll need a nicer way to 
+			// express this check
+			BOOL userInventorySkeletonComplete = FALSE;
+			BOOL libraryInventorySkeletonComplete = FALSE;
+			
+			//if we don't have a real user inventory or we have already gotten the skeleton
+			if ( gAgent.getCapability("agent/inventory_skeleton").empty() ||
+				( LLUserAuth::getInstance()->mResult["inventory-skeleton"]))
+			{
+				userInventorySkeletonComplete= TRUE;
+			}
+						//if we don't have a real user inventory or we have already gotten the skeleton
+			if ( gAgent.getCapability("agent/inventory_skeleton_library").empty() ||
+				( LLUserAuth::getInstance()->mResult["inventory-skel-lib"] ))
+			{
+				libraryInventorySkeletonComplete= TRUE;
+			}
+			if (userInventorySkeletonComplete&&libraryInventorySkeletonComplete)
+			{
+				//yay, all the HTTP requests are completed
+				LLStartUp::setStartupState(STATE_LOGIN_PROCESS_RESPONSE);
+			}
+		}
+
 		return FALSE;
 	}
 	
