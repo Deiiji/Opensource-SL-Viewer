@@ -347,7 +347,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			// Transition to REQUESTED.  Viewer has sent some kind
 			// of TeleportRequest to the source simulator
 			gTeleportDisplayTimer.reset();
-			gViewerWindow->setShowProgress(!gAgent.isTeleportHidden()); 
+			gViewerWindow->setShowProgress(TRUE);
 			gViewerWindow->setProgressPercent(0);
 			gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
 			gAgent.setTeleportMessage(
@@ -375,20 +375,18 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["arriving"]);
 			gImageList.mForceResetTextureStats = TRUE;
-			if(!gAgent.isTeleportHidden())
-				gAgent.resetView(TRUE, TRUE);
+			gAgent.resetView(TRUE, TRUE);
 			break;
 
 		case LLAgent::TELEPORT_ARRIVING:
 			// Make the user wait while content "pre-caches"
 			{
 				F32 arrival_fraction = (gTeleportArrivalTimer.getElapsedTimeF32() / TELEPORT_ARRIVAL_DELAY);
-				if( arrival_fraction > 1.f || gAgent.isTeleportHidden() )
+				if( arrival_fraction > 1.f )
 				{
 					arrival_fraction = 1.f;
 					LLFirstUse::useTeleport();
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
-					gAgent.hideTeleport(false);  // reset teleport screen hiding
 				}
 				gViewerWindow->setProgressCancelButtonVisible(FALSE, std::string("Cancel")); //TODO: Translate
 				gViewerWindow->setProgressPercent(  arrival_fraction * 25.f + 75.f);
@@ -400,7 +398,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			// No teleport in progress
 			gViewerWindow->setShowProgress(FALSE);
 			gTeleportDisplay = FALSE;
-			gAgent.hideTeleport(false);  // reset teleport screen hiding
 			break;
 
 		default: 

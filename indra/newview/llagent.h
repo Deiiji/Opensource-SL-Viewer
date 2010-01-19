@@ -492,7 +492,8 @@ public:
 	// go to a named location home
 	void teleportRequest(
 		const U64& region_handle,
-		const LLVector3& pos_local);
+		const LLVector3& pos_local,
+		bool look_at_from_camera = false);
 
 	// teleport to a landmark
 	void teleportViaLandmark(const LLUUID& landmark_id);
@@ -507,6 +508,9 @@ public:
 	// deprecated.
 	void teleportViaLocation(const LLVector3d& pos_global); 
 
+	// to a global location, preserving camera rotation
+	void teleportViaLocationLookAt(const LLVector3d& pos_global);
+	
 	// cancel the teleport, may or may not be allowed by server
 	void teleportCancel();
 
@@ -714,9 +718,8 @@ public:
 	//debug methods
 	static void		clearVisualParams(void *);
 
-	// add to support auto-hiding teleport screens during double click teleport
-	bool isTeleportHidden() { return mbHideTeleport; }
-	void hideTeleport(bool value) { mbHideTeleport = value; }
+	// whether look-at reset after teleport
+	bool getTeleportKeepsLookAt()	{ return mbTeleportKeepsLookAt; }
 
 	// stuff to do for any sort of teleport. Returns true if the
 	// teleport can proceed.
@@ -780,7 +783,7 @@ public:
 	EDoubleTapRunMode mDoubleTapRunMode;
 
 private:
-	bool mbHideTeleport; // hide teleport screens in double click teleport
+	bool mbTeleportKeepsLookAt; // try to keep look-at after teleport is complete
 	bool mbAlwaysRun; // should the avatar run by default rather than walk
 	bool mbRunning;	// is the avatar trying to run right now
 

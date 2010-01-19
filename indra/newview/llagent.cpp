@@ -401,7 +401,7 @@ LLAgent::LLAgent() :
 	mWearablesLoaded(FALSE),
 	mTextureCacheQueryID(0),
 	mAppearanceSerialNum(0),
-	mbHideTeleport(false)  // add to support auto-hiding teleport screens during double click teleport
+	mbTeleportKeepsLookAt(false)
 {
 	U32 i;
 	for (i = 0; i < TOTAL_CONTROLS; i++)
@@ -6023,12 +6023,14 @@ bool LLAgent::teleportCore(bool is_local)
 
 void LLAgent::teleportRequest(
 	const U64& region_handle,
-	const LLVector3& pos_local)
+	const LLVector3& pos_local,
+	bool look_at_from_camera)
 {
 	LLViewerRegion* regionp = getRegion();
-	if(regionp && teleportCore())
+	bool is_local = (region_handle == to_region_handle(getPositionGlobal()));
+	if(regionp && teleportCore(is_local))
 	{
-		llinfos << "TeleportRequest: '" << region_handle << "':" << pos_local
+		llinfos << "TeleportLocationRequest: '" << region_handle << "':" << pos_local
 				<< llendl;
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessage("TeleportLocationRequest");
@@ -6039,9 +6041,10 @@ void LLAgent::teleportRequest(
 		msg->addU64("RegionHandle", region_handle);
 		msg->addVector3("Position", pos_local);
 		LLVector3 look_at(0,1,0);
-		// double-click teleport or camera teleport use this to set direction
-		if(isTeleportHidden()) 
+		if (look_at_from_camera)
+		{
 			look_at = LLViewerCamera::getInstance()->getAtAxis();
+		}
 		msg->addVector3("LookAt", look_at);
 		sendReliableMessage();
 	}
@@ -6153,12 +6156,26 @@ void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 	}
 }
 
+// Teleport to global position, but keep facing in the same direction 
+void LLAgent::teleportViaLocationLookAt(const LLVector3d& pos_global)
+{
+	mbTeleportKeepsLookAt = true;
+	setFocusOnAvatar(FALSE, ANIMATE);	// detach camera form avatar, so it keeps direction
+	U64 region_handle = to_region_handle(pos_global);
+	LLVector3 pos_local = (LLVector3)(pos_global - from_region_handle(region_handle));
+	teleportRequest(region_handle, pos_local, getTeleportKeepsLookAt());
+}
+
 void LLAgent::setTeleportState(ETeleportState state)
 {
 	mTeleportState = state;
 	if (mTeleportState > TELEPORT_NONE && gSavedSettings.getBOOL("FreezeTime"))
 	{
 		LLFloaterSnapshot::hide(0);
+	}
+	if (mTeleportState == TELEPORT_NONE)
+	{
+		mbTeleportKeepsLookAt = false;
 	}
 	// OGPX : Only compute a 'slurl' in non-OGP mode. In OGP, set it to regionuri in floaterteleport.
 	if ((mTeleportState == TELEPORT_MOVING)&& (!gSavedSettings.getBOOL("OpenGridProtocol")))
