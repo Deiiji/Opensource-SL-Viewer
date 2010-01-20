@@ -698,6 +698,8 @@ Vadim Bigbear
 	VWR-2681
 Vector Hastings
 	VWR-8726
+Vex Streeter
+	SNOW-434
 Vixen Heron
 	VWR-2710
 	CT-88
