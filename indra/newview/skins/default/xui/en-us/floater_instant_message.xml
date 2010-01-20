@@ -39,6 +39,8 @@
 	</string>
 	<button bottom="-40" follows="left|top" height="20" label="Profile..." left="5"
 	     name="profile_callee_btn" width="80" />
+	<button bottom="-40" follows="left|top" height="20" label="Teleport..." left="5"
+	     name="teleport_btn" visible="false" width="80" />
 	<button bottom="-40" follows="left|top" halign="center" height="20"
 	     image_overlay="icn_voice-call-start.tga" image_overlay_alignment="left"
 	     label="Call" left_delta="85" name="start_call_btn" width="100" />
