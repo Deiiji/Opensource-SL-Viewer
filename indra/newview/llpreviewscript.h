@@ -40,6 +40,7 @@
 #include "llcombobox.h"
 #include "lliconctrl.h"
 #include "llframetimer.h"
+#include "lltimer.h"
 
 
 class LLMessageSystem;
@@ -54,7 +55,7 @@ class LLFloaterScriptSearch;
 class LLKeywordToken;
 
 // Inner, implementation class.  LLPreviewScript and LLLiveLSLEditor each own one of these.
-class LLScriptEdCore : public LLPanel
+class LLScriptEdCore : public LLPanel, public LLEventTimer
 {
 	friend class LLPreviewScript;
 	friend class LLPreviewLSL;
@@ -99,7 +100,7 @@ public:
 	static void		onBtnSave(void*);
 	static void		onBtnUndoChanges(void*);
 	static void		onSearchMenu(void* userdata);
-
+	
 	static void		onUndoMenu(void* userdata);
 	static void		onRedoMenu(void* userdata);
 	static void		onCutMenu(void* userdata);
@@ -119,8 +120,12 @@ public:
 	static BOOL		hasChanged(void* userdata);
 
 	void selectFirstError();
+	
+	void autoSave();
 
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	
+	virtual BOOL tick();
 	
 	void enableSave(BOOL b) {mEnableSave = b;}
 
@@ -135,6 +140,7 @@ protected:
 
 private:
 	std::string		mSampleText;
+	std::string		mAutosaveFilename;
 	std::string		mHelpURL;
 	LLTextEditor*	mEditor;
 	void			(*mLoadCallback)(void* userdata);

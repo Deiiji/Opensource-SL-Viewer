@@ -323,7 +323,8 @@ LLScriptEdCore::LLScriptEdCore(
 	mLastHelpToken(NULL),
 	mLiveHelpHistorySize(0),
 	mEnableSave(FALSE),
-	mHasScriptData(FALSE)
+	mHasScriptData(FALSE),
+	LLEventTimer(60)
 {
 	setFollowsAll();
 	setBorderVisible(FALSE);
@@ -437,6 +438,12 @@ LLScriptEdCore::~LLScriptEdCore()
 		script_search->close();
 		delete script_search;
 	}
+}
+
+BOOL LLScriptEdCore::tick()
+{
+	autoSave();
+	return FALSE;
 }
 
 void LLScriptEdCore::initMenu()
@@ -590,6 +597,40 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 	}
 }
 
+void LLScriptEdCore::autoSave()
+{
+	//llinfos << "LLScriptEdCore::autoSave()" << llendl;
+	if(mEditor->isPristine())
+	{
+		return;
+	}
+	//std::string filepath = gDirUtilp->getExpandedFilename(gDirUtilp->getTempDir(),asset_id.asString());
+	if( mAutosaveFilename.empty() ) {
+		std::string asfilename = gDirUtilp->getTempFilename();
+		asfilename.replace( asfilename.length()-4, 12, "_autosave.lsl" );
+		mAutosaveFilename = asfilename;
+		//mAutosaveFilename = llformat("%s.lsl", asfilename.c_str());		
+	}
+	
+	FILE* fp = LLFile::fopen(mAutosaveFilename.c_str(), "wb");
+	if(!fp)
+	{
+		llwarns << "Unable to write to " << mAutosaveFilename << llendl;
+		
+		LLSD row;
+		row["columns"][0]["value"] = "Error writing to temp file. Is your hard drive full?";
+		row["columns"][0]["font"] = "SANSSERIF_SMALL";
+		mErrorList->addElement(row);
+		return;
+	}
+	
+	std::string utf8text = mEditor->getText();
+	fputs(utf8text.c_str(), fp);
+	fclose(fp);
+	fp = NULL;
+	llinfos << "autosave: " << mAutosaveFilename << llendl;
+}
+
 void LLScriptEdCore::setHelpPage(const std::string& help_string)
 {
 	LLFloater* help_floater = mLiveHelpHandle.get();
@@ -679,6 +720,11 @@ bool LLScriptEdCore::handleSaveChangesDialog(const LLSD& notification, const LLS
 		break;
 
 	case 1:  // "No"
+		if( !mAutosaveFilename.empty()) 
+		{
+			llinfos << "remove autosave: " << mAutosaveFilename << llendl;
+			LLFile::remove(mAutosaveFilename.c_str());
+		}
 		mForceClose = TRUE;
 		// This will close immediately because mForceClose is true, so we won't
 		// infinite loop with these dialogs. JC
@@ -1272,6 +1318,10 @@ void LLPreviewLSL::closeIfNeeded()
 	mPendingUploads--;
 	if (mPendingUploads <= 0 && mCloseAfterSave)
 	{
+		if( !mScriptEd->mAutosaveFilename.empty()) {
+			llinfos << "remove autosave: " << mScriptEd->mAutosaveFilename << llendl;
+			LLFile::remove(mScriptEd->mAutosaveFilename.c_str());
+		}
 		close();
 	}
 }
@@ -2419,6 +2469,10 @@ void LLLiveLSLEditor::closeIfNeeded()
 	mPendingUploads--;
 	if (mPendingUploads <= 0 && mCloseAfterSave)
 	{
+		if( !mScriptEd->mAutosaveFilename.empty()) {
+			llinfos << "remove autosave: " << mScriptEd->mAutosaveFilename << llendl;
+			LLFile::remove(mScriptEd->mAutosaveFilename.c_str());
+		}
 		close();
 	}
 }
