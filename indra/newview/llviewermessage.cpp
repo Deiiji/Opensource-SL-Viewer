@@ -113,8 +113,10 @@
 #include "llui.h"			// for make_ui_sound
 #include "lluploaddialog.h"
 #include "llviewercamera.h"
+#include "llviewerdisplay.h"
 #include "llviewergenericmessage.h"
 #include "llviewerinventory.h"
+#include "llviewerjoystick.h"
 #include "llviewermenu.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
@@ -2524,6 +2526,8 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 	U32 teleport_flags = 0x0;
 	msg->getU32("Info", "TeleportFlags", teleport_flags);
 
+	LL_DEBUGS("Messaging") << "Got TeleportStart with TeleportFlags=" << teleport_flags << ". gTeleportDisplay: " << gTeleportDisplay << ", gAgent.mTeleportState: " << gAgent.getTeleportState() << LL_ENDL;
+
 	if (teleport_flags & TELEPORT_FLAGS_DISABLE_CANCEL)
 	{
 		gViewerWindow->setProgressCancelButtonVisible(FALSE);
@@ -2542,6 +2546,7 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 		gAgent.setTeleportState( LLAgent::TELEPORT_START );
 		make_ui_sound("UISndTeleportOut");
 		
+		LL_INFOS("Messaging") << "Teleport initiated by remote TeleportStart message with TeleportFlags: " <<  teleport_flags << LL_ENDL;
 		// Don't call LLFirstUse::useTeleport here because this could be
 		// due to being killed, which would send you home, not to a Telehub
 	}
@@ -5064,10 +5069,21 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 	msg->getVector3Fast(_PREHASH_Info, _PREHASH_Position, pos);
 	msg->getVector3Fast(_PREHASH_Info, _PREHASH_LookAt, look_at);
 	msg->getU32Fast(_PREHASH_Info, _PREHASH_TeleportFlags, teleport_flags);
-
+	
 	if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
 	{
-		gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
+		if( gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL )
+		{
+			// To prevent TeleportStart messages re-activating the progress screen right
+			// after tp, keep the teleport state and let progress screen clear it after a short delay
+			// (progress screen is active but not visible)  *TODO: remove when SVC-5290 is fixed
+			gTeleportDisplayTimer.reset();
+			gTeleportDisplay = TRUE;
+		}
+		else
+		{
+			gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
+		}
 	}
 
 	// Sim tells us whether the new position is off the ground
@@ -5083,8 +5099,10 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 	gAgent.setPositionAgent(pos);
 	gAgent.slamLookAt(look_at);
 
-	// likewise make sure the camera is behind the avatar
-	gAgent.resetView(TRUE, TRUE);
+	if ( !(gAgent.getTeleportKeepsLookAt() && LLViewerJoystick::getInstance()->getOverrideCamera()) )
+	{
+		gAgent.resetView(TRUE, TRUE);
+	}
 
 	// send camera update to new region
 	gAgent.updateCamera();

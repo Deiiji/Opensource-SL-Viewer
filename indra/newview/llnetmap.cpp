@@ -848,7 +848,7 @@ BOOL LLNetMap::handleDoubleClick( S32 x, S32 y, MASK mask )
 
 	if (gSavedSettings.getBOOL("DoubleClickTeleport"))
 	{
-		gAgent.teleportViaLocation(pos_global);
+		gAgent.teleportViaLocationLookAt(pos_global);
 	}
 	else 
 	{

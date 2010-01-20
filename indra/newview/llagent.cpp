@@ -6004,7 +6004,11 @@ bool LLAgent::teleportCore(bool is_local)
 
 	// local logic
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TELEPORT_COUNT);
-	if (!is_local)
+	if (is_local)
+	{
+		gAgent.setTeleportState( LLAgent::TELEPORT_LOCAL );
+	}
+	else
 	{
 		gTeleportDisplay = TRUE;
 		gAgent.setTeleportState( LLAgent::TELEPORT_START );

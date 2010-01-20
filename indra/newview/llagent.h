@@ -608,7 +608,8 @@ public:
 		TELEPORT_MOVING = 3,		// Viewer has received destination location from source simulator
 		TELEPORT_START_ARRIVAL = 4,	// Transition to ARRIVING.  Viewer has received avatar update, etc., from destination simulator
 		TELEPORT_ARRIVING = 5,		// Make the user wait while content "pre-caches"
-		TELEPORT_PLACE_AVATAR = 6	// OGPX : Separate agent domain TP using place_avatar from legacy
+		TELEPORT_LOCAL = 6,			// Teleporting in-sim without showing the progress screen
+		TELEPORT_PLACE_AVATAR = 7	// OGPX : Separate agent domain TP using place_avatar from legacy
 	};
 
 	ETeleportState	getTeleportState() const			{ return mTeleportState; }
