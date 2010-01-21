@@ -84,8 +84,11 @@ void LLStreamingAudio_MediaPlugins::start(const std::string& url)
 
 void LLStreamingAudio_MediaPlugins::stop()
 {
+	llinfos << "entered LLStreamingAudio_MediaPlugins::stop()" << llendl;
+
 	if(mMediaPlugin)
 	{
+		llinfos << "Stopping internet stream: " << mURL << llendl;
 		mMediaPlugin->stop();
 	}
 
