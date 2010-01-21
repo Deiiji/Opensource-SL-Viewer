@@ -201,6 +201,8 @@ public:
 	void setErrorHandler(LLAppErrorHandler handler);
 	void setSyncErrorHandler(LLAppErrorHandler handler);
 
+	static BOOL sDisableCrashlogger; // Let the OS handle crashes for us.
+
 #if !LL_WINDOWS
 	//
 	// Child process handling (Unix only for now)
