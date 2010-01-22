@@ -156,12 +156,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Linden Lab"
             VALUE "FileDescription", "Snowglobe"
-            VALUE "FileVersion", "1.3.0.0"
+            VALUE "FileVersion", "1.4.0.0"
             VALUE "InternalName", "Second Life"
-            VALUE "LegalCopyright", "Copyright © 2001-2009, Linden Research, Inc."
+            VALUE "LegalCopyright", "Copyright © 2001-2010, Linden Research, Inc."
             VALUE "OriginalFilename", "Snowglobe.exe"
             VALUE "ProductName", "Snowglobe"
-            VALUE "ProductVersion", "1.3.0.0"
+            VALUE "ProductVersion", "1.4.0.0"
         END
     END
     BLOCK "VarFileInfo"
