@@ -6334,13 +6334,24 @@ BOOL menu_ui_enabled(void *user_data)
 // TomY TODO DEPRECATE & REMOVE
 void menu_toggle_control( void* user_data )
 {
-        BOOL checked = gSavedSettings.getBOOL( static_cast<char*>(user_data) );
-        if (std::string(static_cast<char*>(user_data)) == "HighResSnapshot" && !checked)
+        std::string setting(static_cast<char*>(user_data));
+        BOOL checked = gSavedSettings.getBOOL(setting);
+        if (setting == "HighResSnapshot" && !checked)
         {
                 // High Res Snapshot active, must uncheck RenderUIInSnapshot
                 gSavedSettings.setBOOL( "RenderUIInSnapshot", FALSE );
         }
-        gSavedSettings.setBOOL( static_cast<char*>(user_data), !checked );
+        else if (setting == "DoubleClickAutoPilot" && !checked)
+        {
+                // Doubleclick actions - there can be only one
+                gSavedSettings.setBOOL( "DoubleClickTeleport", FALSE );
+        }
+        else if (setting == "DoubleClickTeleport" && !checked)
+        {
+                // Doubleclick actions - there can be only one
+                gSavedSettings.setBOOL( "DoubleClickAutoPilot", FALSE );
+        }
+        gSavedSettings.setBOOL(setting, !checked);
 }
 
 
