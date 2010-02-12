@@ -203,21 +203,21 @@ target_link_libraries(
     )
 
 if(WORD_SIZE EQUAL 64)
-	add_library (llcommonPIC ${llcommon_SOURCE_FILES})
-	add_dependencies(llcommonPIC prepare)
+    add_library (llcommonPIC ${llcommon_SOURCE_FILES})
+    add_dependencies(llcommonPIC prepare)
 
-	if(WINDOWS)
-		add_definitions(/FIXED:NO)
-	else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
-		add_definitions(-fPIC)
-	endif(WINDOWS)
-	
-	target_link_libraries(
-		llcommonPIC
-		${APRUTIL_LIBRARIES}
-		${APR_LIBRARIES}
-		${EXPAT_LIBRARIES}
-		${ZLIB_LIBRARIES}
-		)
+    if(WINDOWS)
+        add_definitions(/FIXED:NO)
+    else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
+        add_definitions(-fPIC)
+    endif(WINDOWS)
+
+    target_link_libraries(
+    llcommonPIC
+    ${APRUTIL_LIBRARIES}
+    ${APR_LIBRARIES}
+    ${EXPAT_LIBRARIES}
+    ${ZLIB_LIBRARIES}
+    )
 endif(WORD_SIZE EQUAL 64)
 
