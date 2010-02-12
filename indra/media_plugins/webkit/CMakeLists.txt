@@ -2,9 +2,9 @@
 
 project(media_plugin_webkit)
 
-if(HAVE_64_BIT)
+if(WORD_SIZE EQUAL 64)
 	set(REQUIRE_PIC)
-endif(HAVE_64_BIT)
+endif(WORD_SIZE EQUAL 64)
 
 include(00-Common)
 include(LLCommon)
@@ -37,13 +37,13 @@ set(media_plugin_webkit_SOURCE_FILES
     media_plugin_webkit.cpp
     )
 
-if(HAVE_64_BIT)
+if(WORD_SIZE EQUAL 64)
 	if(WINDOWS)
 		add_definitions(/FIXED:NO)
 	else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
 		add_definitions(-fPIC)
 	endif(WINDOWS)
-endif (HAVE_64_BIT)
+endif (WORD_SIZE EQUAL 64)
 
 add_library(media_plugin_webkit
     SHARED

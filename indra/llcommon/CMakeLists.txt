@@ -202,7 +202,7 @@ target_link_libraries(
     ${ZLIB_LIBRARIES}
     )
 
-if(HAVE_64_BIT)
+if(WORD_SIZE EQUAL 64)
 	add_library (llcommonPIC ${llcommon_SOURCE_FILES})
 	add_dependencies(llcommonPIC prepare)
 
@@ -219,5 +219,5 @@ if(HAVE_64_BIT)
 		${EXPAT_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		)
-endif(HAVE_64_BIT)
+endif(WORD_SIZE EQUAL 64)
 
