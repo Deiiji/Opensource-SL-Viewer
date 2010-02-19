@@ -4956,7 +4956,10 @@ LLVector3 LLVOAvatar::getVolumePos(S32 joint_index, LLVector3& volume_offset)
 //-----------------------------------------------------------------------------
 LLJoint* LLVOAvatar::findCollisionVolume(U32 volume_id)
 {
-	if ((S32)volume_id > mNumCollisionVolumes)
+	//SNOW-488: As mNumCollisionVolumes is a S32 and we are casting from a U32 to a S32
+	//to compare we also need to be sure of the wrap around case producing (S32) <0
+	//or in terms of the U32 an out of bounds index in the array.
+	if ((S32)volume_id > mNumCollisionVolumes || (S32)volume_id<0)
 	{
 		return NULL;
 	}
