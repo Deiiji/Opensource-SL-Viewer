@@ -53,15 +53,15 @@ set(media_plugin_gstreamer010_HEADER_FILES
     llmediaimplgstreamer_syms.h
     llmediaimplgstreamertriviallogging.h
     )
-
-# CXX_VERSION needs triming to be able to do numeric comparison
-STRING(REGEX REPLACE ".* ([0-9])\\.([0-9])\\.([0-9]).*" "\\1\\2\\3" CXX_VERSION ${CXX_VERSION})
-if (${CXX_VERSION} GREATER 419)
-    # Work around a bad interaction between broken gstreamer headers and
-    # g++ 4.2's increased strictness.
-    set_source_files_properties(llmediaimplgstreamervidplug.cpp PROPERTIES
-                                COMPILE_FLAGS -Wno-write-strings)
-endif (${CXX_VERSION} GREATER 419)
+    
+if (LINUX)
+    if (${CXX_VERSION} GREATER 419)
+        # Work around a bad interaction between broken gstreamer headers and
+        # g++ 4.2's increased strictness.
+        set_source_files_properties(llmediaimplgstreamervidplug.cpp PROPERTIES
+                                    COMPILE_FLAGS -Wno-write-strings)
+    endif (${CXX_VERSION} GREATER 419)
+endif (LINUX)
 
 add_library(media_plugin_gstreamer010
     SHARED
