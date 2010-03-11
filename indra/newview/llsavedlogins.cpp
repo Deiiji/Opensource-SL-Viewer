@@ -98,6 +98,7 @@ const std::string LLSavedLoginEntry::getGridName() const
 	if (mEntry.has("griduri") && mEntry.get("griduri").isURI())
 	{
 		gridname = mEntry.get("griduri").asURI().hostName();
+		LLStringUtil::toLower(gridname);
 	}
 	else if (mEntry.has("grid"))
 	{

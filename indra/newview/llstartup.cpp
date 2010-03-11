@@ -3431,9 +3431,10 @@ bool login_show(LLSavedLogins const& saved_logins)
 	std::vector<std::string> const& commandLineURIs(vl->getCommandLineURIs());
 	for (std::vector<std::string>::const_iterator iter = commandLineURIs.begin(); iter != commandLineURIs.end(); ++iter)
 	{
-	  	LLURI uri(*iter);
-		std::string grid_name = uri.hostName();
-		if (listed_name.insert(grid_name).second)
+	  	LLURI cli_uri(*iter);
+		std::string cli_grid_name = cli_uri.hostName();
+		LLStringUtil::toLower(cli_grid_name);
+		if (listed_name.insert(cli_grid_name).second)
 		{
 			// If the loginuri already exists in the saved logins
 			// then use just it's name, otherwise show the full uri.
@@ -3441,13 +3442,13 @@ bool login_show(LLSavedLogins const& saved_logins)
 			for (LLSavedLoginsList::const_iterator saved_login_iter = saved_login_entries.begin();
 			     saved_login_iter != saved_login_entries.end(); ++saved_login_iter)
 			{
-				if (saved_login_iter->getGridName() == grid_name)
+				if (saved_login_iter->getGridName() == cli_grid_name)
 				{
 					exists = true;
 					break;
 				}
 			}
-			LLPanelLogin::addServer(exists ? grid_name : *iter, GRID_INFO_OTHER);
+			LLPanelLogin::addServer(exists ? cli_grid_name : *iter, GRID_INFO_OTHER);
 			have_loginuri = true;	// Causes the first server to be added here to be selected.
 		}
 	}

@@ -292,7 +292,6 @@ void LLViewerLogin::parseCommandLineURIs()
 					if(!uri.empty())
 					{
 						foundRealURI = true;
-						LLStringUtil::toLower(uri);
 						mCommandLineURIs.push_back(uri);
 					}
 				}
@@ -303,7 +302,6 @@ void LLViewerLogin::parseCommandLineURIs()
 				if(!uri.empty())
 				{
 					foundRealURI = true;
-					LLStringUtil::toLower(uri);
 					mCommandLineURIs.push_back(uri);
 				}
 			}
