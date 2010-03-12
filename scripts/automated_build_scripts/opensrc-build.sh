@@ -135,9 +135,6 @@ trap fail 1 2 3 14 15
 # Check location
 cd "$here/../.."
 
-test -x ../linden/scripts/automated_build_scripts/opensrc-build.sh\
- || fail 'The parent dir of your checkout needs to be named "linden"' 
-
 . doc/asset_urls.txt
 get_asset "$SLASSET_ART"
 
@@ -375,7 +372,7 @@ do
   fi
 done
 
-# check statuis and upload results to S3
+# check status and upload results to S3
 subject=
 if $succeeded
 then
