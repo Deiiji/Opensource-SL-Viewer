@@ -60,6 +60,7 @@ Alejandro Rosenthal
 Aleric Inglewood
 	VWR-10759
 	VWR-10837
+	VWR-12984
 	VWR-13996
 	VWR-14426
 	VWR-14914
@@ -668,6 +669,7 @@ Tharax Ferraris
 Thickbrick Sleaford
 	VWR-7109
 	VWR-9287
+	VWR-12984
 	VWR-13483
 	VWR-15495
 	VWR-15628
