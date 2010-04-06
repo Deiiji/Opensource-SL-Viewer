@@ -264,7 +264,7 @@ Linux)
 *) fail undefined $arch ;;
 esac
 
-get_asset "http://www.fmod.org/index.php/release/version/$fmod_tar"
+get_asset "http://www.fmod.org/files/fmod3/$fmod_tar"
 
 case "$arch" in
 
