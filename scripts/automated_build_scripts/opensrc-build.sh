@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# This is the build script used by Linden Lab's autmated build system.
+# This is the build script used by Linden Lab's automated build system.
 #
 
 set -x
@@ -20,6 +20,7 @@ top=`cd "$here/../../.." && pwd`
 [ x"$S3SYMBOL_URL" = x ]  && export S3SYMBOL_URL=https://s3.amazonaws.com/automated-builds-secondlife-com/binaries
 [ x"$PUBLIC_URL" = x ] && export PUBLIC_URL=http://secondlife.com/developers/opensource/downloads/$year
 [ x"$PUBLIC_EMAIL" = x ] && export PUBLIC_EMAIL=sldev-commits@lists.secondlife.com
+
 # Make sure command worked and bail out if not, reporting failure to parabuild
 fail()
 {
@@ -94,7 +95,7 @@ get_asset()
 
 s3_available()
 {
-  test -x "$helpers/s3get.sh" -a -x "$helpers/s3put.sh" -a -r "$helpers/s3curl.pl"
+  test -x "$helpers/hg/bin/s3get.sh" -a -x "$helpers/hg/bin/s3put.sh" -a -r "$helpers/hg/bin/s3curl.py"
 }
 
 build_dir_Darwin()
@@ -114,18 +115,18 @@ build_dir_CYGWIN()
 
 installer_Darwin()
 {
-  ls -1td "`build_dir_Darwin Release`/newview/"*.dmg 2>/dev/null | sed 1q
+  ls -1td "$(build_dir_Darwin Release)/newview/"*.dmg 2>/dev/null | sed 1q
 }
 
 installer_Linux()
 {
-  ls -1td "`build_dir_Linux Release`/newview/"*.tar.bz2 2>/dev/null | sed 1q
+  ls -1td "$(build_dir_Linux Release)/newview/"*.tar.bz2 2>/dev/null | sed 1q
 }
 
 installer_CYGWIN()
 {
-  d=`build_dir_CYGWIN Release`
-  p=`sed 's:.*=::' "$d/newview/Release/touched.bat"`
+  d=$(build_dir_CYGWIN Release)
+  p=$(sed 's:.*=::' "$d/newview/Release/touched.bat")
   echo "$d/newview/Release/$p"
 }
 
@@ -174,6 +175,7 @@ Darwin)
   all_done="$helpers"/all_done.py
   test -r "$helpers/update_version_files.py" && update_version_files="$helpers/update_version_files.py"
   libs_asset="$SLASSET_LIBS_DARWIN"
+  s3put="$helpers"/hg/bin/s3put.sh
   ;;
 
 CYGWIN)
@@ -198,6 +200,7 @@ CYGWIN)
   all_done="C:\\buildscripts\\shared\\latest\\all_done.py"
   test -r "$helpers/update_version_files.py" && update_version_files="C:\\buildscripts\\shared\\latest\\update_version_files.py"
   libs_asset="$SLASSET_LIBS_WIN32"
+  s3put="$helpers"/hg/bin/s3put.sh
   ;;
 
 Linux)
@@ -259,6 +262,7 @@ Linux)
   fi
 
   libs_asset="$SLASSET_LIBS_LINUXI386"
+  s3put="$helpers"/hg/bin/s3put.sh
   ;;
 
 *) fail undefined $arch ;;
@@ -328,7 +332,7 @@ for variant in $variants
 do
   build_dir=`build_dir_$arch $variant`
   rm -rf "$build_dir"
-  get_asset "$libs_asset" # Thus plunks stuff into the build dir, so have to restore it now.
+  get_asset "$libs_asset" # This plunks stuff into the build dir, so have to restore it now.
   # This is the way it will work in future
   #for target_dir in $target_dirs
   #do
@@ -375,7 +379,7 @@ do
   fi
 done
 
-# check statuis and upload results to S3
+# Check status and upload results to S3
 subject=
 if $succeeded
 then
@@ -384,18 +388,20 @@ then
   package_file=`echo $package | sed 's:.*/::'`
   if s3_available
   then
-    echo "$PUBLIC_URL/$branch/$revision/$package_file" > "$arch"
+    # Create an empty token file and populate it with the usable URLs: this will be emailed when all_done...
+    cp /dev/null "$arch"
+    echo "$PUBLIC_URL/$branch/$revision/$package_file" >> "$arch"
     echo "$PUBLIC_URL/$branch/$revision/good-build.$arch" >> "$arch"
-    "$helpers/s3put.sh" "$package" "$S3PUT_URL/$branch/$revision/$package_file"    binary/octet-stream\
+    "$s3put" "$package" "$S3PUT_URL/$branch/$revision/$package_file"    binary/octet-stream public-read\
        || fail Uploading "$package"
-    "$helpers/s3put.sh" build.log  "$S3PUT_URL/$branch/$revision/good-build.$arch" text/plain\
+    "$s3put" build.log  "$S3PUT_URL/$branch/$revision/good-build.$arch" text/plain          public-read\
        || fail Uploading build.log
-    "$helpers/s3put.sh" "$arch"    "$S3PUT_URL/$branch/$revision/$arch"            text/plain\
+    "$s3put" "$arch"    "$S3PUT_URL/$branch/$revision/$arch"            text/plain          public-read\
        || fail Uploading token file
     for symbolfile in $symbolfiles
     do
       targetfile="`echo $symbolfile | sed 's:.*/::'`"
-      "$helpers/s3put.sh" "$build_dir/$symbolfile" "$S3SYMBOL_URL/$revision/$targetfile" binary/octet-stream\
+      "$s3put" "$build_dir/$symbolfile" "$S3SYMBOL_URL/$revision/$targetfile" binary/octet-stream public-read\
         || fail Uploading "$symbolfile"
     done
     if python "$all_done"\
@@ -411,7 +417,7 @@ then
 else
   if s3_available
   then
-    "$helpers/s3put.sh" build.log "$S3PUT_URL/$branch/$revision/failed-build.$arch" text/plain\
+    "$s3put" build.log "$S3PUT_URL/$branch/$revision/failed-build.$arch" text/plain public-read\
        || fail Uploading build.log
     subject="Failed Build for $branch ($revision) on $arch"
     cat >message <<EOF
@@ -435,7 +441,7 @@ then
     echo "No change information available" >> message
   elif [ x"$PARABUILD_PREVIOUS_CHANGE_LIST_NUMBER" = x ]
   then
-    ( cd .. && svn log --verbose --stop-on-copy --limit 50 ) >>message
+    ( cd .. && svn log --verbose --stop-on-copy --limit 50 ) >> message
   else
     if [ "$PARABUILD_PREVIOUS_CHANGE_LIST_NUMBER" -lt "$PARABUILD_CHANGE_LIST_NUMBER" ]
 	then
@@ -443,10 +449,10 @@ then
 	else
 	  range="$PARABUILD_CHANGE_LIST_NUMBER"
 	fi
-    ( cd .. && svn log --verbose -r"$range" ) >>message
+    ( cd .. && svn log --verbose -r"$range" ) >> message
   fi
   # $PUBLIC_EMAIL can be a list, so no quotes
-  python "$mail" "$subject" $PUBLIC_EMAIL <message
+  python "$mail" "$subject" $PUBLIC_EMAIL < message
 fi
 
 if $succeeded
