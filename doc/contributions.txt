@@ -663,6 +663,7 @@ Techwolf Lupindo
 	SNOW-237
 	SNOW-333
 	SNOW-334
+	SNOW-592
 	VWR-12385
 tenebrous pau
 	VWR-247
@@ -694,6 +695,7 @@ Thickbrick Sleaford
 	SNOW-462
 	SNOW-513
 	SNOW-551
+	SNOW-592
 Thraxis Epsilon
 	SVC-371
 	VWR-383

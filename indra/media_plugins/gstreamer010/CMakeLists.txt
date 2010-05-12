@@ -54,15 +54,6 @@ set(media_plugin_gstreamer010_HEADER_FILES
     llmediaimplgstreamertriviallogging.h
     )
     
-if (LINUX)
-    if (${CXX_VERSION} GREATER 419)
-        # Work around a bad interaction between broken gstreamer headers and
-        # g++ 4.2's increased strictness.
-        set_source_files_properties(llmediaimplgstreamervidplug.cpp PROPERTIES
-                                    COMPILE_FLAGS -Wno-write-strings)
-    endif (${CXX_VERSION} GREATER 419)
-endif (LINUX)
-
 add_library(media_plugin_gstreamer010
     SHARED
     ${media_plugin_gstreamer010_SOURCE_FILES}
