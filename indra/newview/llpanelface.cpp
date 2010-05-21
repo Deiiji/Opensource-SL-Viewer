@@ -48,6 +48,7 @@
 #include "llcolorswatch.h"
 #include "llcombobox.h"
 #include "lldrawpoolbump.h"
+#include "llface.h"
 #include "lllineeditor.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
@@ -169,6 +170,7 @@ BOOL	LLPanelFace::postBuild()
 	
 	childSetCommitCallback("combobox shininess",&LLPanelFace::onCommitShiny,this);
 	childSetCommitCallback("combobox bumpiness",&LLPanelFace::onCommitBump,this);
+	childSetCommitCallback("checkbox planar align",&LLPanelFace::onCommitPlanarAlign, this);
 	childSetCommitCallback("TexScaleU",&LLPanelFace::onCommitTextureInfo, this);
 	childSetCommitCallback("checkbox flip s",&LLPanelFace::onCommitTextureInfo, this);
 	childSetCommitCallback("TexScaleV",&LLPanelFace::onCommitTextureInfo, this);
@@ -359,6 +361,93 @@ private:
 	LLPanelFace* mPanel;
 };
 
+// Functor that aligns a face to mCenterFace
+struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
+{
+	LLPanelFaceSetAlignedTEFunctor(LLPanelFace* panel, LLFace* center_face) :
+		mPanel(panel),
+		mCenterFace(center_face) {}
+
+	virtual bool apply(LLViewerObject* object, S32 te)
+	{
+		LLFace* facep = object->mDrawable->getFace(te);
+		if (!facep)
+		{
+			return true;
+		}
+
+		bool set_aligned = true;
+		if (facep == mCenterFace)
+		{
+			set_aligned = false;
+		}
+		if (set_aligned)
+		{
+			LLVector2 uv_offset, uv_scale;
+			F32 uv_rot;
+			set_aligned = facep->calcAlignedPlanarTE(mCenterFace, &uv_offset, &uv_scale, &uv_rot);
+			if (set_aligned)
+			{
+				object->setTEOffset(te, uv_offset.mV[VX], uv_offset.mV[VY]);
+				object->setTEScale(te, uv_scale.mV[VX], uv_scale.mV[VY]);
+				object->setTERotation(te, uv_rot);
+			}
+		}
+		if (!set_aligned)
+		{
+			LLPanelFaceSetTEFunctor setfunc(mPanel);
+			setfunc.apply(object, te);
+		}
+		return true;
+	}
+private:
+	LLPanelFace* mPanel;
+	LLFace* mCenterFace;
+};
+
+// Functor that tests if a face is aligned to mCenterFace
+struct LLPanelFaceGetIsAlignedTEFunctor : public LLSelectedTEFunctor
+{
+	LLPanelFaceGetIsAlignedTEFunctor(LLFace* center_face) :
+		mCenterFace(center_face) {}
+
+	virtual bool apply(LLViewerObject* object, S32 te)
+	{
+		LLFace* facep = object->mDrawable->getFace(te);
+		if (!facep)
+		{
+			return false;
+		}
+		if (facep == mCenterFace)
+		{
+			return true;
+		}
+		
+		LLVector2 aligned_st_offset, aligned_st_scale;
+		F32 aligned_st_rot;
+		if ( facep->calcAlignedPlanarTE(mCenterFace, &aligned_st_offset, &aligned_st_scale, &aligned_st_rot) )
+		{
+			const LLTextureEntry* tep = facep->getTextureEntry();
+			LLVector2 st_offset, st_scale;
+			tep->getOffset(&st_offset.mV[VX], &st_offset.mV[VY]);
+			tep->getScale(&st_scale.mV[VX], &st_scale.mV[VY]);
+			F32 st_rot = tep->getRotation();
+			// needs a fuzzy comparison, because of fp errors
+			if (is_approx_equal_fraction(st_offset.mV[VX], aligned_st_offset.mV[VX], 16) && 
+				is_approx_equal_fraction(st_offset.mV[VY], aligned_st_offset.mV[VY], 16) && 
+				is_approx_equal_fraction(st_scale.mV[VX], aligned_st_scale.mV[VX], 16) &&
+				is_approx_equal_fraction(st_scale.mV[VY], aligned_st_scale.mV[VY], 16) &&
+				is_approx_equal_fraction(st_rot, aligned_st_rot, 14))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+private:
+	LLFace* mCenterFace;
+};
+
 struct LLPanelFaceSendFunctor : public LLSelectedObjectFunctor
 {
 	virtual bool apply(LLViewerObject* object)
@@ -370,8 +459,26 @@ struct LLPanelFaceSendFunctor : public LLSelectedObjectFunctor
 
 void LLPanelFace::sendTextureInfo()
 {
-	LLPanelFaceSetTEFunctor setfunc(this);
-	LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
+	if ((bool)childGetValue("checkbox planar align").asBoolean())
+	{
+		struct f1 : public LLSelectedTEGetFunctor<LLFace *>
+		{
+			LLFace* get(LLViewerObject* object, S32 te)
+			{
+				return (object->mDrawable) ? object->mDrawable->getFace(te): NULL;
+			}
+		} get_last_face_func;
+		LLFace* last_face;
+		LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_last_face_func, last_face);
+
+		LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face);
+		LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
+	}
+	else
+	{
+		LLPanelFaceSetTEFunctor setfunc(this);
+		LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
+	}
 
 	LLPanelFaceSendFunctor sendfunc;
 	LLSelectMgr::getInstance()->getSelection()->applyToObjects(&sendfunc);
@@ -480,6 +587,43 @@ void LLPanelFace::getState()
 			}
 		}
 
+		// planar align
+		bool align_planar = false;
+		bool identical_planar_aligned = false;
+		{
+			LLCheckBoxCtrl*	cb_planar_align = getChild<LLCheckBoxCtrl>("checkbox planar align");
+			align_planar = (cb_planar_align && cb_planar_align->get());
+			struct f1 : public LLSelectedTEGetFunctor<bool>
+			{
+				bool get(LLViewerObject* object, S32 face)
+				{
+					return (object->getTE(face)->getTexGen() == LLTextureEntry::TEX_GEN_PLANAR);
+				}
+			} func;
+			
+			bool is_planar;
+			bool texgens_identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, is_planar );
+			bool enabled = (editable && texgens_identical && is_planar);
+			childSetValue("checkbox planar align", align_planar && enabled);
+			childSetEnabled("checkbox planar align", enabled);
+		
+			if (align_planar && enabled)
+			{
+				struct f2 : public LLSelectedTEGetFunctor<LLFace *>
+				{
+					LLFace* get(LLViewerObject* object, S32 te)
+					{
+						return (object->mDrawable) ? object->mDrawable->getFace(te): NULL;
+					}
+				} get_te_face_func;
+				LLFace* last_face;
+				LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_te_face_func, last_face);
+				LLPanelFaceGetIsAlignedTEFunctor get_is_aligend_func(last_face);
+				// this will determine if the texture param controls are tentative:
+				identical_planar_aligned = LLSelectMgr::getInstance()->getSelection()->applyToTEs(&get_is_aligend_func);
+			}
+		}
+		
 		// Texture scale
 		{
 			childSetEnabled("tex scale",editable);
@@ -493,6 +637,7 @@ void LLPanelFace::getState()
 				}
 			} func;
 			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, scale_s );
+			identical = align_planar ? identical_planar_aligned : identical;
 			childSetValue("TexScaleU",editable ? llabs(scale_s) : 0);
 			childSetTentative("TexScaleU",LLSD((BOOL)(!identical)));
 			childSetEnabled("TexScaleU",editable);
@@ -511,6 +656,7 @@ void LLPanelFace::getState()
 				}
 			} func;
 			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, scale_t );
+			identical = align_planar ? identical_planar_aligned : identical;
 
 			childSetValue("TexScaleV",llabs(editable ? llabs(scale_t) : 0));
 			childSetTentative("TexScaleV",LLSD((BOOL)(!identical)));
@@ -532,6 +678,7 @@ void LLPanelFace::getState()
 				}
 			} func;
 			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, offset_s );
+			identical = align_planar ? identical_planar_aligned : identical;
 			childSetValue("TexOffsetU", editable ? offset_s : 0);
 			childSetTentative("TexOffsetU",!identical);
 			childSetEnabled("TexOffsetU",editable);
@@ -547,6 +694,7 @@ void LLPanelFace::getState()
 				}
 			} func;
 			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, offset_t );
+			identical = align_planar ? identical_planar_aligned : identical;
 			childSetValue("TexOffsetV", editable ? offset_t : 0);
 			childSetTentative("TexOffsetV",!identical);
 			childSetEnabled("TexOffsetV",editable);
@@ -564,6 +712,7 @@ void LLPanelFace::getState()
 				}
 			} func;
 			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, rotation );
+			identical = align_planar ? identical_planar_aligned : identical;
 			childSetValue("TexRot", editable ? rotation * RAD_TO_DEG : 0);
 			childSetTentative("TexRot",!identical);
 			childSetEnabled("TexRot",editable);
@@ -976,4 +1125,12 @@ void LLPanelFace::onClickAutoFix(void* userdata)
 
 	LLPanelFaceSendFunctor sendfunc;
 	LLSelectMgr::getInstance()->getSelection()->applyToObjects(&sendfunc);
+}
+
+// static
+void LLPanelFace::onCommitPlanarAlign(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	self->getState();
+	self->sendTextureInfo();
 }
