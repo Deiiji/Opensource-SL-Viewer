@@ -174,6 +174,7 @@ BOOL LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 			opj_image_destroy(image);
 		}
 
+		base.decodeFailed();
 		return TRUE; // done
 	}
 
@@ -184,7 +185,7 @@ BOOL LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 		{
 			// if we didn't get the discard level we're expecting, fail
 			opj_image_destroy(image);
-			base.mDecoding = FALSE;
+			base.decodeFailed();
 			return TRUE;
 		}
 	}
@@ -196,7 +197,8 @@ BOOL LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 		{
 			opj_image_destroy(image);
 		}
-			
+
+		base.decodeFailed();
 		return TRUE;
 	}
 
@@ -243,7 +245,8 @@ BOOL LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 		{
 			llwarns << "ERROR -> decodeImpl: failed to decode image! (NULL comp data - OpenJPEG bug)" << llendl;
 			opj_image_destroy(image);
-
+			
+			base.decodeFailed();
 			return TRUE; // done
 		}
 	}
