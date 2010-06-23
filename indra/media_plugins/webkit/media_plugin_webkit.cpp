@@ -49,6 +49,13 @@
 #include <stdlib.h>
 #endif
 
+#if LL_LINUX
+extern "C" {
+#include <glib.h>
+#include <glib-object.h>
+}
+#endif // LL_LINUX
+
 #if LL_WINDOWS
 	// NOTE - This captures the module handle of the dll. This is used below
 	// to get the path to this dll for webkit initialization.
@@ -107,6 +114,16 @@ private:
 	//
 	void update(int milliseconds)
 	{
+#if LL_QTLINUX_DOESNT_HAVE_GLIB
+		// pump glib generously, as Linux browser plugins are on the
+		// glib main loop, even if the browser itself isn't - ugh
+		// This is NOT NEEDED if Qt itself was built with glib
+		// mainloop integration.
+		GMainContext *mainc = g_main_context_default();
+		while(g_main_context_iteration(mainc, FALSE));
+#endif // LL_QTLINUX_DOESNT_HAVE_GLIB
+
+		// pump qt
 		LLQtWebKit::getInstance()->pump( milliseconds );
 		
 		checkEditState();
@@ -194,6 +211,14 @@ private:
 #else
 		std::string component_dir = application_dir;
 #endif
+
+#if LL_LINUX
+		// take care to initialize glib properly, because some
+		// versions of Qt don't, and we indirectly need it for (some
+		// versions of) Flash to not crash the browser.
+		if (!g_thread_supported ()) g_thread_init (NULL);
+		g_type_init();
+#endif // LL_LINUX
 
 		// window handle - needed on Windows and must be app window.
 #if LL_WINDOWS
